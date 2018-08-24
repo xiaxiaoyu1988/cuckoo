@@ -1,21 +1,17 @@
 .. _index:
 
 ===================
-Cuckoo Sandbox Book
+Cuckoo Sandbox 中文文档
 ===================
 
-Cuckoo Sandbox is an *open source* software for automating analysis of
-suspicious files. To do so it makes use of custom components that monitor the
-behavior of the malicious processes while running in an isolated environment.
+Cuckoo Sandbox 是一个开源的自动分析可疑文件的软件。它通过在独立环境内使用自定义组件来监控恶意进程的行为。
 
-This guide will explain how to set up Cuckoo, use it, and customize it.
+本文档旨在说明如何配置、使用和定制Cuckoo
 
-Using the new Cuckoo Package?
+首次使用Cuckoo?
 =============================
 
-There are various big improvements related to usability in the newly released
-Cuckoo Package. To get the most out of it, start reading on the different
-subjects related to it. Following are some of the highlights:
+在新版的Cuckoo中，有很多有关可用性的较大的改动。为了更好的使用Cuckoo，建议使用前阅读以下相关的几个章节:
 
 * :doc:`installation/host/cwd`
 * :doc:`usage/cwd`
@@ -23,20 +19,19 @@ subjects related to it. Following are some of the highlights:
 * :doc:`installation/upgrade`
 * :doc:`usage/feedback`
 
-Having troubles?
+有疑问?
 ================
 
-If you're having troubles you might want to check out the :doc:`FAQ <faq/index>`
-as it may already have the answers to your questions.
+如果你在使用过程中遇到问题，建议先阅读下 :doc:`FAQ <faq/index>` 章节，其中可以已经包含了相关的解答。
 
 .. toctree::
 
     faq/index
 
-Otherwise you can ask the developers and/or other Cuckoo users, see
+除此之外，你也可以向Cuckoo的开发者或者其他Cuckoo用户咨询：
 :doc:`Join the discussion <finalremarks/index>`.
 
-Contents
+文档目录
 ========
 
 .. toctree::

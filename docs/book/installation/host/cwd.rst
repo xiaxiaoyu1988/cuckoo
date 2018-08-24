@@ -1,7 +1,7 @@
 .. _CWD:
 
 ========================
-Cuckoo Working Directory
+Cuckoo 工作目录
 ========================
 
 .. versionadded:: 2.0.0

@@ -1,11 +1,9 @@
 .. Introduction chapter frontpage
 
-Introduction
+介绍
 ============
 
-This is an introductory chapter to Cuckoo Sandbox.
-It explains some basic malware analysis concepts, what's Cuckoo and how it can fit
-in malware analysis.
+本章主要解释了一些恶意软件的基本概念，以及什么是Cuckoo，Cuckoo为何适合恶意软件分析。
 
 .. toctree::
 

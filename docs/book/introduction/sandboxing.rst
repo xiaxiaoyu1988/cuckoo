@@ -1,72 +1,48 @@
 ==========
-Sandboxing
+沙箱
 ==========
 
-As defined by `Wikipedia`_, "*in computer security, a sandbox is a security
-mechanism for separating running programs. It is often used to execute untested
-code, or untrusted programs from unverified third-parties, suppliers, untrusted
-users and untrusted websites.*".
+就像 `Wikipedia`_ 中定义的一样, "*在计算机安全领域，沙箱是一种程序隔离运行的安全机制。
+通常用于执行未测试过的代码，或者来自未经验证的第三方的可疑程序*".
 
-This concept applies to malware analysis' sandboxing too: our goal is to run an
-unknown and untrusted application or file inside an isolated environment and get
-information on what it does.
+这个概念同样也适用于恶意软件分析沙箱: 我们的目的是在一个隔离的环境中运行未知的不可信的程序，
+从而获取它的所有行为。
 
-Malware sandboxing is a practical application of the dynamical analysis
-approach: instead of statically analyzing the binary file, it gets executed and
-monitored in real-time.
+恶意软件沙箱是动态分析的一种方式：不是静态的分析文件，而是在实时监控的情况下运行程序进行分析。
 
-This approach obviously has pros and cons, but it's a valuable technique to
-obtain additional details on the malware, such as its network behavior.
-Therefore it's a good practice to perform both static and dynamic analysis while
-inspecting a malware, in order to gain a deeper understanding of it.
+这种方式有利有弊， 但对于获取恶意软件的详细信息是一种很有价值的技术，
+比如获取恶意软件的网络行为。因此，分析一个恶意软件，将静态分析与动态分析结合起来，
+能够更深入的恶意软件。
 
-Simple as it is, Cuckoo is a tool that allows you to perform sandboxed malware
-analysis.
+简单来说，Cuckoo即是一个允许你进行恶意软件沙箱分析的工具。
 
 .. _`Wikipedia`: http://en.wikipedia.org/wiki/Sandbox_%28computer_security%29
 
-Using a Sandbox
+沙箱使用
 ===============
 
-Before starting to install, configure and use Cuckoo, you should take some
-time to think on what you want to achieve with it and how.
+在开始安装、配置和使用Cuckoo之前，你应该花一点时间思考一下，应该用Cuckoo来做什么以及如何做。
 
-Some questions you should ask yourself:
+下面是需要思考的几个问题:
 
-    * What kind of files do I want to analyze?
-    * What volume of analyses do I want to be able to handle?
-    * Which platform do I want to use to run my analysis on?
-    * What kind of information I want about the file?
+    * 我想分析什么类型的文件?
+    * 我能处理的信息量有多大?
+    * 我需要什么样的平台来运行和分析?
+    * 我想得到这个文件的什么信息?
 
-The creation of the isolated environment (for example a virtual machine) is
-probably the most critical and important part of a sandbox deployment: it should
-be done carefully and with proper planning.
+隔离环境（例如虚拟机）是恶意软件沙箱中最关键和最重要的部分：应该精心计划。
 
-Before getting hands on the virtualization product of your choice, you should
-already have a design plan that defines:
+在选择虚拟机产品前，要考虑以下几个点：
+    * 使用哪种操作系统、语言和系统补丁版本。
+    * 安装哪些软件以及软件的版本（在分析漏洞时特别的重要）。
 
-    * Which operating system, language and patching level to use.
-    * Which software to install and which versions (particularly important when analyzing exploits).
+考虑到恶意软件的不确定性，分析是否成功可能取决与很多因素，不一定每次都是成功的。 
 
-Consider that automated malware analysis is not deterministic and its success
-might depend on a trillion of factors: you are trying to make a malware run
-in a virtualized system as it would do on a native one, which could be tricky to
-achieve and may not always succeed.
-Your goal should be both to create a system able to handle all the requirements
-you need as well as try to make it as realistic as possible.
+例如，你可以考虑在虚拟机环境里留下一些使用痕迹，比如浏览器记录，cookie，文档，图片等等。
+因为恶意软件有可能会操作这些文件，如果没有的话，就无法分析他的行为。
 
-For example you could consider leaving some intentional traces of normal usage,
-such as browsing history, cookies, documents, images etc. If a malware is
-designed to operate, manipulate or steal such files you'll be able to notice it.
+虚拟化的操作系统很容易被检测出来，恶意软件检测到虚拟机环境有可能就不执行，
+所以需要尽可能的防止被检测出来是虚拟机。
+网络上有很多的虚拟机检测和应对技术。
 
-Virtualized operating systems usually carry a lot of traces with them that makes
-them very easily detectable. Even if you shouldn't overestimate this problem,
-you might want to take care of this and try to hide as many virtualization
-traces as possible.
-There is a lot of literature on Internet regarding virtualization detection
-techniques and countermeasures.
-
-Once you finished designing and preparing the prototype of system you want, you
-can proceed creating it and deploying it. You will be always in time to
-change things or slightly fix them, but remember that good planning at the
-beginning always means less troubles in the long run.
+一旦你准备好，就可以开始部署了。虽然后面也可以不断的修改，但是前期的充分准备可以让后面出现的问题更少。
