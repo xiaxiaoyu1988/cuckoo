@@ -42,6 +42,11 @@ You can find the full documentation of the latest stable release
 .. image:: https://codecov.io/gh/cuckoosandbox/cuckoo/branch/master/graph/badge.svg
    :alt: Codecov Coverage Status
    :target: https://codecov.io/gh/cuckoosandbox/cuckoo
+   
+.. image:: https://readthedocs.org/projects/cuckoo-sandbox/badge/?version=latest
+   :alt: Doc Build Status
+   :target: http://cuckoo.homemoon.top/   
+   
 
 .. _`community guidelines`: https://cuckoo.sh/docs/introduction/community.html
 .. _`contribution requirements`: http://www.cuckoofoundation.org/contribute.html
