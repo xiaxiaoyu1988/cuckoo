@@ -4,6 +4,9 @@
 
 在安装和配置Cuckoo之前，需要先安装依赖的一些软件和库。
 
+.. note::
+    【译者注】 Debian下Apt软件安装，可以去掉命令前面的sudo
+
 安装 Python 库 (Ubuntu/Debian-based)
 ==================================================================
 
@@ -74,6 +77,9 @@ Cuckoo沙箱支持大部分的虚拟化软件，可以很方便的添加和使�
 本文档以VirtualBox为例。选择哪种虚拟机软件并不影响后续的分析， 
 但是如果你选择了相应的虚拟机，应该按照我们相应的文档和FAQ去配置。
 
+.. note::
+    【译者注】 测试过程中选择了KVM
+
 Assuming you decide to go for VirtualBox, you can get the proper package for
 your distribution at the `official download page`_. Please find following the
 commands to install the latest version of VirtualBox on your Ubuntu LTS
@@ -91,104 +97,83 @@ For more information on VirtualBox, please refer to the
 .. _official download page: https://www.virtualbox.org/wiki/Linux_Downloads
 .. _official documentation: https://www.virtualbox.org/wiki/Documentation
 
-Installing tcpdump
+安装 tcpdump
 ==================
 
-In order to dump the network activity performed by the malware during
-execution, you'll need a network sniffer properly configured to capture
-the traffic and dump it to a file.
+Tcpdump用于抓取恶意软件运行过程中产生的所有流量。
 
-By default Cuckoo adopts `tcpdump`_, the prominent open source solution.
-
-Install it on Ubuntu::
+安装命令::
 
     $ sudo apt-get install tcpdump apparmor-utils
     $ sudo aa-disable /usr/sbin/tcpdump
 
-Note that the ``AppArmor`` profile disabling (the ``aa-disable`` command) is
-only required when using the default ``CWD`` directory as AppArmor would
-otherwise prevent the creation of the actual PCAP files (see also
-:ref:`tcpdump_permission_denied`).
+``AppArmor`` 只有当PCAP文件生成没有权限的时候才需要，可以参考 :ref:`tcpdump_permission_denied`
 
-For Linux platforms with AppArmor disabled (e.g., Debian) the following
-command will suffice to install `tcpdump`_::
+禁用了AppArmor 的Linux的平台下， 比如Debian， 仅需要安装 `tcpdump`_::
 
     $ sudo apt-get install tcpdump
 
-Tcpdump requires root privileges, but since you don't want Cuckoo to run as
-root you'll have to set specific Linux capabilities to the binary::
+Tcpdump需要root权限，如果不想运行在root用户下，需要做以下设置::
 
     $ sudo setcap cap_net_raw,cap_net_admin=eip /usr/sbin/tcpdump
 
-You can verify the results of the last command with::
+可以用以下命令验证是否配置正确::
 
     $ getcap /usr/sbin/tcpdump
     /usr/sbin/tcpdump = cap_net_admin,cap_net_raw+eip
 
-If you don't have `setcap` installed you can get it with::
+如果没有`setcap`命令， 则需要安装下面的包::
 
     $ sudo apt-get install libcap2-bin
 
-Or otherwise (**not recommended**) do::
+或者 (**不推荐**) ::
 
     $ sudo chmod +s /usr/sbin/tcpdump
 
-Please keep in mind that even the `setcap` method is not perfectly safe (due
-to potential security vulnerabilities) if the system has other users which are
-potentially untrusted. We recommend to run Cuckoo on a dedicated system or a
-trusted environment where the privileged tcpdump execution is contained
-otherwise.
+需要注意的是 `setcap` 命令不安全，有可能造成提权漏洞，我们建议将Cuckoo安装在专有的环境里。
 
 .. _tcpdump: http://www.tcpdump.org
 
-Installing Volatility
+安装 Volatility
 =====================
 
-Volatility is an optional tool to do forensic analysis on memory dumps. In
-combination with Cuckoo, it can automatically provide additional visibility
-into deep modifications in the operating system as well as detect the presence
-of rootkit technology that escaped the monitoring domain of Cuckoo's analyzer.
+Volatility 用于分析内存转储文件的可选工具.
+Cuckoo与Volatility配合，可以更深度和全面的分析，可以防止恶意软件利用rookit技术逃逸沙箱的监控。
 
-In order to function properly, Cuckoo requires at least version 2.3 of
-Volatility, but recommends the latest version, Volatility 2.5. You can
-download it from their `official repository`_.
+为了能够工作正常，Cuckoo要求Volatility版本不低于 2.3， 推荐最新版本2.5。
+可以从官网下载 `official repository`_.
 
-See the volatility documentation for detailed instructions on how to install it.
+可以查阅Volatility官方文档的安装说明.
 
 .. _official repository: https://github.com/volatilityfoundation
 
-Installing M2Crypto
+安装 M2Crypto
 ===================
 
-Currently the ``M2Crypto`` library is only supported when `SWIG`_ has been
-installed. On Ubuntu/Debian-like systems this may be done as follows::
+当前 ``M2Crypto`` 库需要 `SWIG`_ 支持.  Ubuntu/Debian-like 系统下可以通过以下命令安装::
 
     $ sudo apt-get install swig
 
-If ``SWIG`` is present on the system one may install ``M2Crypto`` as follows::
+``SWIG`` 安装好之后，通过以下命令安装 ``M2Crypto``::
 
     $ sudo pip install m2crypto==0.24.0
 
 .. _SWIG: http://www.swig.org/
 
-Installing guacd
+安装 guacd
 ================
 
-``guacd`` is an optional service that provides the translation layer for RDP,
-VNC, and SSH for the remote control functionality in the Cuckoo web interface.
+``guacd`` 是RDP，SSH，VNC等远程控制的代理层， 是Cuckoo的Web界面的远程终端中使用，可选。
 
-Without it, remote control won't work. Versions 0.9.9 and up will work, but we
-recommend installing the latest version. On an Ubuntu 17.04 machine the
-following command will install version ``0.9.9-2``::
+没有它，远程控制功能就无法使用，版本要求0.9.9及以上。我们推荐安装最新版本
+使用如下命令安装::
 
     $ sudo apt install libguac-client-rdp0 libguac-client-vnc0 libguac-client-ssh0 guacd
 
-If you only want RDP support you can skip the installation of the
-``libguac-client-vnc0`` and ``libguac-client-ssh0`` packages.
+如果只需要远程桌面功能，则可以跳过
+``libguac-client-vnc0`` 和 ``libguac-client-ssh0`` 两个包.
 
-If you are using an older distribution or you just want to use the latest
-version (our recommendation), the following will build the latest version
-(``0.9.14``) from source::
+如果你使用了较老的Linux发行版，又想使用最新的guacd，那只能自己动手编译，就不做过多说明了::
 
     $ sudo apt -y install libcairo2-dev libjpeg-turbo8-dev libpng-dev libossp-uuid-dev libfreerdp-dev
     $ mkdir /tmp/guac-build && cd /tmp/guac-build
