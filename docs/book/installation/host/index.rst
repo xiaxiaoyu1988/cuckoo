@@ -1,10 +1,8 @@
 ==================
-Preparing the Host
+宿主机的准备
 ==================
 
-To run Cuckoo we suggest a *GNU/Linux* operating system. We'll be using the
-**latest Ubuntu LTS** (16.04 at the time of writing) throughout our
-documentation.
+我们推荐使用*GNU/Linux*系统，本文中将会使用**最新的 Ubuntu LTS版本**为例。
 
 .. toctree::
 

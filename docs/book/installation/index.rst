@@ -3,7 +3,7 @@
 Installation
 ============
 
-This chapter explains how to install Cuckoo.
+本章节主要说明如何安装Cuckoo。推荐Linux系统（Debian 或者 Ubuntu 等）。
 
 Although the recommended setup is *GNU/Linux* (Debian or Ubuntu preferably),
 Cuckoo has proved to work smoothly on *Mac OS X* and *Microsoft Windows 7* as

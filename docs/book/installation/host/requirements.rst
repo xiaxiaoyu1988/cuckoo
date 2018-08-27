@@ -1,39 +1,34 @@
 ============
-Requirements
+依赖
 ============
 
-Before proceeding to installing and configuring Cuckoo, you'll need to install
-some required software packages and libraries.
+在安装和配置Cuckoo之前，需要先安装依赖的一些软件和库。
 
-Installing Python libraries (on Ubuntu/Debian-based distributions)
+安装 Python 库 (Ubuntu/Debian-based)
 ==================================================================
 
-The Cuckoo host components is completely written in Python, therefore it is
-required to have an appropriate version of Python installed. At this point we
-only fully support **Python 2.7**. Older version of Python and Python 3
-versions are not supported by us (although Python 3 support is on our TODO
-list with a low priority).
+Cuckoo的管理组件完全由Python脚本编写，所以就需要适合的Python版本。
+当前，我们完全兼容的Python版本是 **2.7**。 
 
-The following software packages from the apt repositories are required to get
-Cuckoo to install and run properly::
+老版本的Python和Python 3（未来可能会支持） 目前都是不支持的。
+
+以下一些通过Apt安装的软件都是必须的::
 
     $ sudo apt-get install python python-pip python-dev libffi-dev libssl-dev
     $ sudo apt-get install python-virtualenv python-setuptools
     $ sudo apt-get install libjpeg-dev zlib1g-dev swig
 
-In order to use the Django-based Web Interface, MongoDB is required::
+如果要使用我们基于Django开发的Web界面, 则MongoDB是必须要安装的::
 
     $ sudo apt-get install mongodb
 
-In order to use PostgreSQL as database (our recommendation), PostgreSQL will
-have to be installed as well::
+如果要使用PostgreSQL数据库(推荐), PostgreSQL也必须安装::
 
     $ sudo apt-get install postgresql libpq-dev
 
-`Yara`_ and `Pydeep`_ are *optional* plugins but will have to be installed
-manually, so please refer to their websites.
+`Yara`_ 和 `Pydeep`_ 是 *可选* 的插件。如果选择安装的话，具体安装步骤可以参考他们的官网.
 
-If you want to use KVM as machinery module you will have to install KVM::
+如果使用KVM的话，则需要安装KVM相关依赖::
 
     $ sudo apt-get install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils python-libvirt
 
@@ -41,9 +36,8 @@ If you want to use XenServer you'll have to install the *XenAPI* Python package:
 
     $ sudo pip install XenAPI
 
-If you want to use the *mitm* auxiliary module (to intercept SSL/TLS generated
-traffic), you need to install `mitmproxy`_. Please refer to its website for
-installation instructions.
+如果要使用*mitm*辅助模块 ( SSL/TLS 中间人攻击), 
+需要安装 `mitmproxy`_. 可以参考官网的相关安装说明.
 
 .. _Yara: https://github.com/plusvic/yara
 .. _Pydeep: https://github.com/kbandla/pydeep
@@ -72,21 +66,13 @@ Installing Python libraries (on Windows 7)
 
 To be documented.
 
-Virtualization Software
+虚拟化软件
 =======================
 
-Cuckoo Sandbox supports most Virtualization Software solutions. As you will
-see throughout the documentation, Cuckoo has been setup to remain as modular
-as possible and in case integration with a piece of software is missing this
-could be easily added.
+Cuckoo沙箱支持大部分的虚拟化软件，可以很方便的添加和使用各种虚拟化支持。
 
-For the sake of this guide we will assume that you have VirtualBox installed
-(which is the default), but this does **not** affect the execution and general
-configuration of the sandbox.
-
-You are completely responsible for the choice, configuration, and execution of
-your virtualization software. Please read our extensive documentation and FAQ
-before reaching out to us with questions on how to set Cuckoo up.
+本文档以VirtualBox为例。选择哪种虚拟机软件并不影响后续的分析， 
+但是如果你选择了相应的虚拟机，应该按照我们相应的文档和FAQ去配置。
 
 Assuming you decide to go for VirtualBox, you can get the proper package for
 your distribution at the `official download page`_. Please find following the

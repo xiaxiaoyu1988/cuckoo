@@ -1,32 +1,27 @@
 ===============
-What is Cuckoo?
+Cuckoo 是什么?
 ===============
 
-Cuckoo is an open source automated malware analysis system.
+Cuckoo是一个开源的恶意软件自动分析系统。
+通常被用于在隔离的环境中运行和收集恶意软件的信息以便分析。
 
-It's used to automatically run and analyze files and collect comprehensive
-analysis results that outline what the malware does while running inside an
-isolated operating system.
+它可以分析出以下几种类型的结果:
 
-It can retrieve the following type of results:
+    * 跟踪恶意软件产生函数调用.
+    * 恶意软件执行期间的文件操作，包括新建，删除以及文件下载.
+    * 恶意软件的内存转储.
+    * PCAP格式的网络流量捕获.
+    * 恶意软件运行时的截屏.
+    * 虚拟机的完整内存转储文件.
 
-    * Traces of calls performed by all processes spawned by the malware.
-    * Files being created, deleted and downloaded by the malware during its execution.
-    * Memory dumps of the malware processes.
-    * Network traffic trace in PCAP format.
-    * Screenshots taken during the execution of the malware.
-    * Full memory dumps of the machines.
-
-Some History
+Cuckoo的历史
 ============
 
-Cuckoo Sandbox started as a `Google Summer of Code`_ project in 2010 within
-`The Honeynet Project`_. It was originally designed and developed by
-*Claudio “nex” Guarnieri*, who is still the project leader and core developer.
+Cuckoo 沙箱最初开始于2010年的谷歌编程之夏中的蜜网项目。它由*Claudio “nex” Guarnieri* 设计和开发，并且
+他们现在仍然时该项目的核心开发和领导者。
 
-After initial work during the summer 2010, the first beta release was published
-on Feb. 5th 2011, when Cuckoo was publicly announced and distributed for the
-first time.
+在2010年夏天的初步开发后， Cuckoo的首个公开测试版本在2011年2月5日发布。
+
 
 In March 2011, Cuckoo has been selected again as a supported project during
 Google Summer of Code 2011 with The Honeynet Project, during which
@@ -97,46 +92,38 @@ Sandbox a better project for daily usage.
 Use Cases
 =========
 
-Cuckoo is designed to be used both as a standalone application as well as to be
-integrated in larger frameworks, thanks to its extremely modular design.
+Cuckoo 由于其模块化的设计，既可以作为独立的应用程序，亦可嵌入到大的系统中。
 
-It can be used to analyze:
+它可以用于分析:
 
-    * Generic Windows executables
-    * DLL files
-    * PDF documents
-    * Microsoft Office documents
-    * URLs and HTML files
-    * PHP scripts
-    * CPL files
-    * Visual Basic (VB) scripts
-    * ZIP files
-    * Java JAR
-    * Python files
-    * *Almost anything else*
+    * 通用的Windows可执行文件
+    * DLL文件
+    * PDF文档
+    * Microsoft Office文档
+    * URLs 和 HTML 文件
+    * PHP 脚本
+    * CPL 文件
+    * Visual Basic (VB) 脚本
+    * ZIP 文件
+    * Java JAR 文件
+    * Python 脚本
+    * *大部分的其他文件类型*
 
-Thanks to its modularity and powerful scripting capabilities, there's no limit
-to what you can achieve with Cuckoo.
+由于它的模块化以及脚本化， Cuckoo不限制你用它来实现任何系统。
 
-For more information on customizing Cuckoo, see the :doc:`../customization/index`
-chapter.
+更多信息请参考 :doc:`../customization/index`
+章节。
 
-Architecture
+架构
 ============
 
-Cuckoo Sandbox consists of a central management software which handles sample
-execution and analysis.
+Cuckoo沙箱包含了一个核心管理组件，用于管理样本的执行和分析。
+每次分析都是在隔离的虚拟或者物理机环境上执行。
 
-Each analysis is launched in a fresh and isolated virtual or physical machine.
-The main components of Cuckoo's infrastructure are an Host machine (the
-management software) and a number of Guest machines (virtual or physical
-machines for analysis).
+Cuckoo 由一个宿主机（管理组件）加上多个沙箱（物理机或者虚拟机）组成。
+宿主机上的管理组件负责了一个样本分析的全部过程，样本的执行过程都是在沙箱中进行。
 
-The Host runs the core component of the sandbox that manages the whole
-analysis process, while the Guests are the isolated environments
-where the malware samples get actually safely executed and analyzed.
-
-The following picture explains Cuckoo's main architecture:
+如下图片说明了Cuckoo的主要架构:
 
     .. image:: ../_images/schemas/architecture-main.png
         :align: center
