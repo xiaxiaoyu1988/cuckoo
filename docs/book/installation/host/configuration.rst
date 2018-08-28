@@ -1,17 +1,17 @@
 =============
-Configuration
+配置
 =============
 
-Cuckoo relies on a couple of main configuration files:
+Cuckoo 中有几个核心的配置文件:
 
-* :ref:`cuckoo_conf`: for configuring general behavior and analysis options.
-* :ref:`auxiliary_conf`: for enabling and configuring auxiliary modules.
-* :ref:`machinery_conf`: for defining the options for your virtualization software (the file has the same name of the machinery module you choose in cuckoo.conf).
-* :ref:`memory_conf`: Volatility configuration.
-* :ref:`processing_conf`: for enabling and configuring processing modules.
-* :ref:`reporting_conf`: for enabling or disabling report formats.
+* :ref:`cuckoo_conf`: 用于配置通用选项和分析参数.
+* :ref:`auxiliary_conf`: 用于开启或者分配辅助模块.
+* :ref:`machinery_conf`: 用于配置和填入虚拟机相关参数（使用何种虚拟机，则选择哪种虚拟机配置文件，例如选择kvm， 则配置kvm.conf）.
+* :ref:`memory_conf`: Volatility 配置选项.
+* :ref:`processing_conf`: 用户开启或者配置数据处理模块.
+* :ref:`reporting_conf`: 用于开关报表模块.
 
-To get Cuckoo working you should at the very least edit :ref:`cuckoo_conf` and
+Cuckoo正常工作至少需要配置两个文件 :ref:`cuckoo_conf` 和 
 :ref:`machinery_conf`.
 
 .. _cuckoo_conf:
@@ -19,29 +19,22 @@ To get Cuckoo working you should at the very least edit :ref:`cuckoo_conf` and
 cuckoo.conf
 ===========
 
-The first file to edit is ``$CWD/conf/cuckoo.conf``. Note that we'll be
-referring to the :doc:`cwd` when we talk about ``$CWD``. The ``cuckoo.conf``
-file contains generic configuration options that you will want to verify or
-at least familiarize yourself with before launching Cuckoo.
+文件路径 ``$CWD/conf/cuckoo.conf``. 
+注意下下 ``$CWD`` 目录指的Cuckoo工作目录，具体可以参考  :doc:`cwd` .
+The ``cuckoo.conf`` 包含了通用的选项，修改前要熟知其含义.
 
-The file is largely commented and self-explanatory, but some of the options
-may be of special interest to you:
+配置文件中已经对相关选项做了详细的注释，如下几个选项我们做一下特别的说明:
 
-* ``machinery`` in ``[cuckoo]``:
-    This option defines which Machinery module you want Cuckoo to use to
-    interact with your analysis machines. The value must be the name of
-    the module without extension (e.g., ``virtualbox`` or ``vmware``).
+*  ``[cuckoo]`` 中的 ``machinery`` :
+    该选项指定使用何种虚拟机引擎 (e.g., ``virtualbox`` or ``vmware``).
 
-* ``ip`` and ``port`` in ``[resultserver]``:
-    These define the local IP address and port that Cuckoo is going to try
-    to bind the result server on. Make sure this matches the network
-    configuration of your analysis machines or they won't be able to
-    return any results.
+* ``[resultserver]`` 中的 ``ip`` 和 ``port`` :
+    这个IP和端口是Cuckoo的结果服务需要监听的，要确保虚拟机的网络对该IP和端口是可达的，
+    否则可能造成没有分析结果.
 
-* ``connection`` in ``[database]``:
-    The database connection string defines how Cuckoo will connect to the
-    internal database. You can use any DBMS supported by `SQLAlchemy`_
-    using a valid `Database Urls`_ syntax.
+* ``[database]`` 中的 ``connection`` :
+    这个配置用于定义数据库链接URL。可以使用任何 `SQLAlchemy`_
+    支持的 `Database Urls`_ 格式.
 
 .. _`SQLAlchemy`: http://www.sqlalchemy.org/
 .. _`Database Urls`: http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls
@@ -61,10 +54,11 @@ may be of special interest to you:
 auxiliary.conf
 ==============
 
-Auxiliary modules are scripts that run concurrently with malware analysis,
-this file defines their options.
+辅助模块在恶意软件运行的同时运行, 该配置文件中可以修改相关选项.
 
-Following is the default ``$CWD/conf/auxiliary.conf`` file.
+以下是 ``$CWD/conf/auxiliary.conf`` 的文件内容.
+.. note::
+    【译者注】 文件内容就不翻译了，选项含义都较为明确
 
 .. literalinclude:: ../../_files/conf/auxiliary.conf
     :language: ini
@@ -74,30 +68,22 @@ Following is the default ``$CWD/conf/auxiliary.conf`` file.
 <machinery>.conf
 ================
 
-Machinery modules are scripts that define how Cuckoo should interact with
-your virtualization software of choice.
+虚拟机模块定义了Cuckoo与选择的虚拟机引擎之间是如何交互的.
 
-Every module has a dedicated configuration file which defines the details on
-the available machines. For example, Cuckoo comes with a ``VMWware`` machinery
-module. In order to use it one has to specify *vmware* as ``machinery`` option
-in ``$CWD/conf/cuckoo.conf`` and populate the ``$CWD/conf/vmware.conf`` file
-with the available Virtual Machines.
+每种虚拟机引擎都有独立的配置文件，例如KVM引擎就是kvm.conf.
 
-Cuckoo provides some modules by default and for the sake of this guide, we'll
-assume you're going to use VirtualBox.
+Cuckoo 默认使用的是 Virtualbox.
 
-Following is the default ``$CWD/conf/virtualbox.conf`` file.
+以下即是 ``$CWD/conf/Virtualbox.conf`` 的文件内容.
 
-.. literalinclude:: ../../_files/conf/virtualbox.conf
+.. literalinclude:: ../../_files/conf/Virtualbox.conf
     :language: ini
 
-The configuration for the other machinery modules look mostly the same with
-some variations where required. E.g., ``XenServer`` operates through an API,
-so to access it a URL and credentials are required.
+不同虚拟机的配置文件看起来类似, 只是稍有不同. 例如., ``XenServer`` 通过API操作，所以需要填写URL和认证信息.
 
-The comments for the options are self-explanatory.
+配置文件中对选项含义也有详细备注.
 
-Following is the default ``$CWD/conf/kvm.conf`` file.
+以下是 ``$CWD/conf/kvm.conf`` 的文件内容.
 
 .. literalinclude:: ../../_files/conf/kvm.conf
     :language: ini
@@ -107,17 +93,15 @@ Following is the default ``$CWD/conf/kvm.conf`` file.
 memory.conf
 ===========
 
-The Volatility tool offers a large set of plugins for memory dump analysis.
-Some of them are quite slow. The ``$CWD/conf/volatility.conf`` file let's you
-enable or disable plugins of your choice. To use Volatility you have to follow
-two steps:
+Volatility 工具提供的内存分析的大量插件， 其中一部分插件运行很慢。
+``$CWD/conf/volatility.conf`` 配置文件可以让你配置开关哪些插件。
+如果需要运行内存分析，需要打开两个开关:
 
- * Enable ``volatility`` in ``$CWD/conf/processing.conf``
- * Enable ``memory_dump`` in ``$CWD/conf/cuckoo.conf``
+ * 启用 ``$CWD/conf/processing.conf`` 中的  ``volatility``
+ * 启用 ``$CWD/conf/cuckoo.conf`` 中的 ``memory_dump``
 
-In ``$CWD/conf/memory.conf``'s basic section you can configure the Volatility
-profile and whether memory dumps should be deleted after having been processed
-(this saves a lot of diskspace)::
+``$CWD/conf/memory.conf`` 文件的基础配置一节中， 可以配置是否在内存分析完成后，删除转储文件。
+可以节省大量的磁盘空间， 配置内存如下::
 
     # Basic settings
     [basic]
@@ -126,7 +110,7 @@ profile and whether memory dumps should be deleted after having been processed
     # Delete memory dump after volatility processing.
     delete_memdump = no
 
-After that every plugin has its own section for configuration::
+在此之下，每个插件都有相应的配置::
 
     # Scans for hidden/injected code and dlls
     # http://code.google.com/p/volatility/wiki/CommandReference#malfind
@@ -141,11 +125,8 @@ After that every plugin has its own section for configuration::
     enabled = off
     filter = on
 
-The filter configuration helps you to remove known clean data from the
-resulting report. It can be configured separately for every plugin.
-
-The filter itself is configured in the [mask] section.
-You can enter a list of pids in pid_generic to filter out processes::
+每个插件都可以单独是否开启白名单filter.
+[mask] 中的 pid_generic 可以配置进程id 白名单， 在白名单中的进程不做内存分析::
 
     # Masks. Data that should not be logged
     # Just get this information from your plain VM Snapshot (without running malware)
@@ -159,18 +140,15 @@ You can enter a list of pids in pid_generic to filter out processes::
 processing.conf
 ===============
 
-This file allows you to enable, disable and configure all processing modules.
-These modules are located under the ``cuckoo.processing`` module and define
-how to digest the raw data collected during the analysis.
+该配置文件用于开关以及配置结果分析模块.
+结果分析模块属于 ``cuckoo.processing`` 模块，主要用于对原始数据进行分析 .
 
-You will find a section for each processing module in
-``$CWD/conf/processing.conf``.
+``$CWD/conf/processing.conf`` 中每一个分析模块都有相应的配置section.
 
 .. literalinclude:: ../../_files/conf/processing.conf
     :language: ini
 
-You might want to configure the `VirusTotal`_ key if you have an account of
-your own.
+如果你有私有的 `VirusTotal`_ key， 可以将它修改为自己的key.
 
 .. _`VirusTotal`: http://www.virustotal.com
 
@@ -179,13 +157,11 @@ your own.
 reporting.conf
 ==============
 
-The ``$CWD/conf/reporting.conf`` file contains information on the reports
-generation.
+``$CWD/conf/reporting.conf`` 主要用于配置报告生成.
 
-It contains the following sections.
+主要包含以下内容.
 
 .. literalinclude:: ../../_files/conf/reporting.conf
     :language: ini
 
-By setting those option to ``on`` or ``off`` you enable or disable the
-generation of such reports.
+通过将选项值修改为 ``on`` 或者 ``off`` 来开关相应的报告生成
