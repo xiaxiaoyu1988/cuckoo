@@ -1,19 +1,16 @@
 .. _installing:
 
 =================
-Installing Cuckoo
+安装 Cuckoo
 =================
 
-Create a user
+创建用户
 =============
 
-You can either run Cuckoo from your own user or create a new one dedicated
-just for your sandbox setup. Make sure that the user that runs Cuckoo is the
-same user that you will use to create and run the virtual machines (at least
-in the case of VirtualBox), otherwise Cuckoo won't be able to identify and
-launch these Virtual Machines.
+Cuckoo可以运行在已有用户下面，也可以新建一个用户来跑Cuckoo。
+但是要保证虚拟机和Cuckoo运行在相同的用户下。
 
-Create a new user::
+创建新用户::
 
     $ sudo adduser cuckoo
 
@@ -22,60 +19,46 @@ group (or the group you used to run VirtualBox)::
 
     $ sudo usermod -a -G vboxusers cuckoo
 
-If you're using KVM or any other libvirt based module, make sure the new user
-belongs to the "libvirtd" group (or the group your Linux distribution uses to
-run libvirt)::
+如果使用KVM，要将用户加入到Libvirtd用户组::
 
     $ sudo usermod -a -G libvirtd cuckoo
 
-Raising file limits
+增加打开文件数限制
 ===================
 
-As outlined in the :doc:`../../faq/index` entry :ref:`openfiles24` one may
-want to bump the file count limits before starting Cuckoo as otherwise some
-samples will fail to properly process the report (due to opening more files
-than allowed by the Operating System).
+在 :doc:`../../faq/index` 文档里的问题 :ref:`openfiles24` 由于操作系统的打开文件
+数限制，会导致报表生成失败。
 
 .. _install_cuckoo:
 
-Install Cuckoo
+安装 Cuckoo
 ==============
 
-Installing the latest version of Cuckoo is as simple as follows. Note that it
-is recommended to first upgrade the ``pip`` and ``setuptools`` libraries as
-they're often outdated, leading to issues when trying to install Cuckoo (see
-also :ref:`pip_install_issue`).
+安装最新版本的Cuckoo比较简单.
+我们推荐使用 ``pip`` 和 ``setuptools``来安装最新版本的Cuckoo。 (一些可能存在的问题 :ref:`pip_install_issue`).
 
 .. warning::
-   It is not unlikely that you'll be missing one or more system packages
-   required to build various Python dependencies. Please read and re-read
-   :doc:`requirements` to resolve these sorts of issues.
+   缺少依赖的时候会导致各种问题.建议安装前仔细阅读
+   :doc:`requirements` 章节.
 
 .. code-block:: bash
 
     $ sudo pip install -U pip setuptools
     $ sudo pip install -U cuckoo
 
-Although the above, a *global* installation of Cuckoo in your OS works mostly
-fine, we **highly recommend** installing Cuckoo in a ``virtualenv``, which
-looks roughly as follows::
+*全局* 安装Cuckoo是没有问题的，但是我们 **强力推荐** 用 ``virtualenv`` 来安装 ::
 
     $ virtualenv venv
     $ . venv/bin/activate
     (venv)$ pip install -U pip setuptools
     (venv)$ pip install -U cuckoo
 
-Some reasons for using a ``virtualenv``:
+为什么我们推荐使用 ``virtualenv`` 呢:
 
-* Cuckoo's dependencies may not be entirely up-to-date, but instead pin to a
-  known-to-work-properly version.
-* The dependencies of other software installed on your system may conflict
-  with those required by Cuckoo, due to incompatible version requirements (and
-  yes, this is also possible when Cuckoo supports the latest version, simply
-  because the other software may have pinned to an older version).
-* Using a virtualenv allows non-root users to install additional packages or
-  upgrade Cuckoo at a later point in time.
-* And simply put, virtualenv is considered a best practice.
+* Cuckoo的依赖并不是用的最新版本，可能会与系统已有的版本冲突.
+* 系统中其他软件的安装，可能会导致Cuckoo的依赖产生问题.
+* 使用virtualenv，可以让非root用户也可以安装相关软件.
+* 简单来说virtualenv是最佳实践.
 
 Please refer to :doc:`cwd` and :doc:`../../usage/cwd` to learn more about the
 ``Cuckoo Working Directory`` and how to operate it.

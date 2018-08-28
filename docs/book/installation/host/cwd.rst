@@ -6,27 +6,24 @@ Cuckoo 工作目录
 
 .. versionadded:: 2.0.0
 
-A new concept is the ``Cuckoo Working Directory``. From this point forward all
-configurable components, generated data, and results of Cuckoo will be stored
-in this directory. These files include but are not limited to the following:
+新版本中多了一个 ``Cuckoo 工作目录`` 的概念， 用来存储之前的所有配置文件，
+生成的数据以及分析结果。
+具体包括但不限于以下几种文件:
 
-* Configuration
-* Cuckoo Signatures
-* Cuckoo Analyzer
-* Cuckoo Agent
-* Yara rules
-* Cuckoo Storage (where analysis results go)
-* And much more..
+* 配置文件
+* Cuckoo 签名规则
+* Cuckoo 分析器
+* Cuckoo 客户端
+* Yara 规则集
+* Cuckoo 分析数据存储
+* 其他文件..
 
-The Cuckoo Working Directory comes with a couple of advantages over the legacy
-approach that Cuckoo used. Following we will study how the
-``Cuckoo Working Directory`` (``CWD`` from now on) overcomes various every-day
-hurdles.
+``Cuckoo 工作目录`` 相比较之前的方式，有了更多的优点.
 
 .. note:: This document merely shows the installation part of the ``CWD``, for
     its actual usage, please refer to the :doc:`../../usage/cwd` document.
 
-Configuration
+配置
 =============
 
 If you have ever updated your Cuckoo setup to a later version, you have run
@@ -37,8 +34,7 @@ completely.
 With the introduction of the ``CWD`` we have gotten rid of this update
 nightmare.
 
-The first time you run ``Cuckoo`` a ``CWD`` checkout will be created for you
-automatically, this pretty much goes as follows::
+``Cuckoo`` 首次运行的时候 ``CWD`` 目录会自动创建，输出如下::
 
     $ cuckoo -d
 
@@ -73,39 +69,27 @@ automatically, this pretty much goes as follows::
     Please modify the default settings where required and
     start Cuckoo again (by running `cuckoo` or `cuckoo -d`).
 
-As pointed out by the info messages you will now be able to find your ``CWD``
-at ``/home/cuckoo/.cuckoo`` as it defaults to ``~/.cuckoo``. All configuration
-files as you know them can be found in the ``$CWD/conf`` directory. I.e.,
-``$CWD/conf/cuckoo.conf``, ``$CWD/conf/virtualbox.conf``, etc.
+从输出消息中可以看到 ``CWD`` 的具体路径。默认是在当前用户目录下  ``~/.cuckoo`` .
+配置文件在 ``$CWD/conf`` 目录下.
 
-Now because the ``CWD`` directory is not part of Cuckoo itself, that is,
-the Git repository or as part of one of the latest releases, one will be able
-to upgrade Cuckoo without having to touch the ``CWD``. (Of course if an update
-is installed that requires an updated Configuration then Cuckoo will guide the
-user through it - instead of overwriting the Configuration files itself).
+由于现在有了 ``CWD`` 目录， 配置与Cuckoo的引擎分离， 所以以后的版本更新维护会更方便。
+两边都可以独立升级。
 
-CWD path
+CWD 路径
 ========
 
-Even though the ``CWD`` defaults to ``~/.cuckoo`` this path is completely
-configurable. The following lists the order of precedence for Cuckoo to
-determine the ``CWD``.
+默认情况下 ``CWD`` 默认目录是 ``~/.cuckoo`` 。 但是这个路径也是可以通过以下几种方式修改的，
+优先级从高到低
 
-* Through the ``--cwd`` command-line option (e.g., ``--cwd ~/.cuckoo``).
-* Through the ``CUCKOO`` environment variable (e.g., ``export CUCKOO=~/.cuckoo``).
-* Through the ``CUCKOO_CWD`` environment variable.
-* If the current directory is a ``CWD`` (e.g., ``cd ~/.cuckoo`` assuming that
-  a ``CWD`` has been created in that directory).
-* The default, ``~/.cuckoo``.
+* 通过命令行参数 ``--cwd``  (e.g., ``--cwd ~/.cuckoo``).
+* 通过配置环境变量 ``CUCKOO``  (e.g., ``export CUCKOO=~/.cuckoo``).
+* 通过配置环境变量 ``CUCKOO_CWD`` .
+* 当前目录名为 .cuckoo   (e.g., ``cd ~/.cuckoo`` 则会将当前目录作为 ``CWD``).
+* 默认路径 ``~/.cuckoo``.
 
-By using alternative ``CWD`` paths it is **possible to run multiple Cuckoo
-instances with different configurations using the same Cuckoo setup**. If for
-some reason one requires two or three separate Cuckoo setups, e.g., in the
-case that you want to run Windows analysis and Android analysis in parallel,
-then not having to upgrade each instance one-by-one every time there is an
-update surely is a great step forward.
+由于 ``CWD`` 目录的可配， 理论上可以并行Cuckoo进程， 例如可以同时运行Windows 和 Android 分析。
 
-Following some examples to show how to configure the ``CWD``.
+下面有一些修改 ``CWD`` 路径的命令样例供参考.
 
 .. code-block:: bash
 
