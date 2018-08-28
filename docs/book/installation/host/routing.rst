@@ -1,37 +1,28 @@
 .. _routing:
 
 ============================
-Per-Analysis Network Routing
+单次分析路由
 ============================
 
-Since Cuckoo ``2.0-rc1`` it is possible to feature per-analysis network
-routing. In other words, if you have one VM and three samples to analyze, it
-is possible to deny internet access for the first analysis, route the second
-analysis through a VPN, and pull the third analysis through the Tor network.
+从 Cuckoo ``2.0-rc1`` 版本起， 每个文件分析都可以有单独的网络路由。
+换句话说，如果要去分析三个文件， 第一个可以不允许访问网络，第二个可以通过VPN访问网络，
+第三个可以通过Tor路由访问网络。
 
-However, aside from the more advanced per-analysis routing, it is naturally
-also possible to have one default route - a setup that used to be popular
-before, when the more luxurious routing was not yet available.
+然后，除了单次分析路由， 之前的默认路由方式更为常用。
 
-In our examples we'll be focusing on ``VirtualBox`` as it is our default
-machinery choice.
+我们的样例里以 ``VirtualBox`` 为例.
 
 .. _simple_global_routing:
 
-Simple Global Routing
+全局路由
 =====================
 
-Before delving into the more complex and feature-rich per-analysis network
-routing we'll first cover the older approach, which is based on global
-``iptables`` rules that are, once set, not changed anymore.
+在深入功能更丰富更复杂的单次路由之前，我们首先看之前的全局路由方式，
+基于 ``iptables`` 规则， 一次设置， 永久有效。
 
-In the following setup we're assuming that the interface assigned to our
-VirtualBox VM is ``vboxnet0``, the IP address of our VM is ``192.168.56.101``
-(in a ``/24`` subnet), and that the outgoing interface connected to the
-internet is ``eth0``. With such a setup, the following ``iptables`` rules will
-allow the VMs access to the Cuckoo host machine (``192.168.56.1`` in this
-setup) as well as the entire internet as you would expect from any application
-connecting to the internet.
+在以下的配置中，我们假设分配给我们 VirtualBox 虚拟机的网络是 ``vboxnet0`` ，
+虚拟机的网络是 ``192.168.56.101`` 子网 ``/24`` ， 出口网卡是 ``eth0`` 。
+下面的 ``iptables`` 规则设置，将会允许虚拟机访问 Cuckoo  的宿主机以及互联网。
 
 .. code-block:: bash
 
@@ -52,91 +43,66 @@ connecting to the internet.
     # Log stuff that reaches this point (could be noisy).
     $ sudo iptables -A FORWARD -j LOG
 
-And that's pretty much it, with these rules set we're almost good to go.
-However, these rules won't be doing any packet forwarding unless IP forwarding
-is explicitly enabled in the kernel. To do so, there is a temporary method
-that survives until a shutdown or reboot, and a permanent method that is taken
-into account when booting the machine. Simply put, generally speaking you'll
-want to run both commands::
+以上的配置已经差不多了，我们还需要配置一个内核参数，打开IP转发。
+不过这个配置是临时生效的，如果需要一直生效，需要在开机启动的时候自动执行下面两条命令::
 
     $ echo 1 | sudo tee -a /proc/sys/net/ipv4/ip_forward
     $ sudo sysctl -w net.ipv4.ip_forward=1
 
-Iptables rules are not persistent between reboots, so if want to keep
-them you should use a script or just install ``iptables-persistent``.
+Iptables 规则也是临时的，重启后失效，如果需要一直生效可以安装 ``iptables-persistent``
+或者使用自启动脚本。
 
-Newer Linux distributions have adopted udev's interface-naming scheme. It's
-important to note that this means ``eth0`` may no longer be your primary
-interface. Possible interface names include ``ensXX``, ``enp0sXX``, and
-``emXX``, where the ``XX`` part identifies a number. This is particularly
-important to note for the NAT statement above.
+有些Linux新的发行版中， 对于网卡的命名规则已经变了， 配置的时候尤其要注意。
 
-Per-Analysis Network Routing Options
+单次分析路由配置
 ====================================
 
-Having discussed the old school method for routing analyses through a network
-interface we will now walk through the dynamic network routing components that
-allow for much more granular network routing.
+上面已经分析过老的路由方式了， 接下来我们分析更细粒度管理的动态网络路由组件。
 
-As outlined in the introduction for this chapter of the documentation it has
-been possible since Cuckoo ``2.0-rc1``, when we introduced the :ref:`rooter`,
-to do per-analysis network routing. Since then various bugs have been resolved
-and more network routing options have been added.
+如本章引言中所述， 从 ``2.0-rc1`` 版本起, 我们引入了 :ref:`rooter`,
+增加了更多的路由方式.
 
-Following is the list of available routing options.
+下面是可选的几种路由方式.
 
 +-------------------------+--------------------------------------------------+
-| Routing Option          | Description                                      |
+| 路由选项                | 描述                                             |
 +=========================+==================================================+
-| :ref:`routing_none`     | No routing whatsoever, the only option that does |
-|                         | *not* require the Cuckoo Rooter to be run (and   |
-|                         | therefore also the **default** routing option).  |
+| :ref:`routing_none`     | 无路由方式，这是唯一一种不需要Rooter运行的方式,  |
+|                         | 默认路由生效。                                   |
 +-------------------------+--------------------------------------------------+
-| :ref:`routing_drop`     | Completely drops all non-Cuckoo traffic,         |
-|                         | including traffic within the VMs' subnet.        |
+| :ref:`routing_drop`     | 完全丢弃所有的非Cuckoo流量,                      |
+|                         | 包括虚拟机子网内的流量.                          |
 +-------------------------+--------------------------------------------------+
-| :ref:`routing_internet` | Full internet access as provided by the given    |
-|                         | network interface (similar to the                |
-|                         | :ref:`simple_global_routing` setup).             |
+| :ref:`routing_internet` | 完整的互联网访问                                 |
 +-------------------------+--------------------------------------------------+
-| :ref:`routing_inetsim`  | Routes all traffic to an InetSim instance -      |
-|                         | which provides fake services - running on the    |
-|                         | host machine.                                    |
+| :ref:`routing_inetsim`  | 将所有流量路由至宿主机上的虚拟网络服务           |
 +-------------------------+--------------------------------------------------+
-| :ref:`routing_tor`      | Routes all traffic through Tor.                  |
+| :ref:`routing_tor`      | 将所有流量路由至Tor网络                          |
 +-------------------------+--------------------------------------------------+
-| :ref:`routing_vpn`      | Routes all traffic through one of perhaps        |
-|                         | multiple pre-defined VPN endpoints.              |
+| :ref:`routing_vpn`      | 将所有流量路由值预先配置号的多个VPN网络          |
 +-------------------------+--------------------------------------------------+
 
-Using Per-Analysis Network Routing
+使用单次网络分析路由
 ==================================
 
-Having knowledge about the available network routing options it is time to
-actually use it in practice. Assuming Cuckoo has been configured properly
-taking advantage of its features is really as simple as **starting the Cuckoo
-Rooter and choosing a network routing option for your analysis**.
+通过上面的描述，我们已经了解了基础知识了，接下来我们开始实践。
+Cuckoo 配置好之后， 启动Cuckoo Rooter，选择一种网络模式去分析就简单了。
 
-Documentation on starting the ``Cuckoo Rooter`` may be found in the
-:ref:`cuckoo_rooter_usage` document.
+``Cuckoo Rooter`` 具体说明可以参考
+:ref:`cuckoo_rooter_usage` .
 
 .. _routing_iproute2:
 
-Configuring iproute2
+配置 iproute2
 ====================
 
-For Linux kernel TCP/IP source routing reasons it is required to register each
-of the network interfaces that we use with ``iproute2``. This is trivial, but
-necessary.
+由于Linux 内核对于 TCP/IP 源路由需要注册所有的网卡信息， 所以我们使用 ``iproute2``。
 
-As an example we'll be configuring :ref:`routing_internet` (aka the
-``dirty line``) for which we'll be using the ``eth0`` network interface -
-reverting back to Ubuntu 14.04 and older terminology here for a second (Ubuntu
-16.04 uses network interface names based on the hardware manufacturer, as you
-will likely have seen happen on BSD-based systems since forever).
+下面我们将以配置 :ref:`routing_internet` 为例。
 
-To configure ``iproute2`` with ``eth0`` we're going to open the
-``/etc/iproute2/rt_tables`` file which will look roughly as follows::
+假设出口网卡是 ``eth0``。
+
+配置 ``iproute2`` 需要打开 ``/etc/iproute2/rt_tables`` 文件，内容可能如下显示::
 
     #
     # reserved values
@@ -149,9 +115,8 @@ To configure ``iproute2`` with ``eth0`` we're going to open the
     # local
     #
 
-Now roll a random number that is not yet present in this file with your dice
-of choice and use it to craft a new line at the end of the file. As an
-example, registering ``eth0`` with ``iproute2`` could look as follows::
+选个文件中没有的数字， 在文件末尾新建一行，填入数字 加 网卡名称。
+例如::
 
     #
     # reserved values
@@ -166,68 +131,54 @@ example, registering ``eth0`` with ``iproute2`` could look as follows::
 
     400     eth0
 
-And that's really all there is to it. You will have to do this for each
-network interface you intend to use for network routing.
+如果需要配置多个网卡，每个网卡都需要在文件中配置.
 
 .. _routing_none:
 
 None Routing
 ^^^^^^^^^^^^
 
-The default routing mechanism in the sense that Cuckoo allows the analysis to
-route as defined by a third party. As in, it literally doesn't do anything.
-One may use the ``none routing`` in conjunction with the
-:ref:`simple_global_routing`.
+什么都不做，使用 :ref:`simple_global_routing`.
 
 .. _routing_drop:
 
 Drop Routing
 ^^^^^^^^^^^^
 
-The ``drop routing`` option is somewhat like a default :ref:`routing_none`
-setup (as in, in a machine where no global ``iptables`` rules have been
-created providing full internet access to VMs or so), except that it is much
-more aggressive in actively locking down the internet access provided to the
-VM.
+``drop routing`` 跟默认的 :ref:`routing_none`
+很像 (如果没有配置全局的 iptables 规则), 不过它不允许虚拟机对互联网的访问。
 
-With ``drop routing`` the only traffic possible is internal Cuckoo traffic and
-hence any ``DNS`` requests or outgoing ``TCP/IP`` connections are blocked.
+使用 ``drop routing`` 只允许Cuckoo的内部流量， 任何对外的 ``DNS`` 或者 ``TCP/IP``
+都会被阻断。
 
 .. _routing_internet:
 
 Internet Routing
 ^^^^^^^^^^^^^^^^
 
-By using the ``internet routing`` one may provide full internet access to VMs
-through one of the connected network interfaces. We also refer to this option
-as the ``dirty line`` due to its nature of allowing all potentially malicious
-samples to connect to the internet through the same uplink.
+该路由模式允许虚拟机有完整的互联网路由， 不过正因为如此， 它允许恶意软件通过上行链路
+连接到网络，我们称之为 ``dirty line`` 。
 
-.. note:: It is required to register the dirty line network interface with
-    iproute2 as described in the :ref:`routing_iproute2` section.
+.. note:: ``dirty line`` 的出口网卡需要在 :ref:`routing_iproute2` 中配置.
 
 .. _routing_inetsim:
 
 InetSim Routing
 ^^^^^^^^^^^^^^^
 
-For those that have not heard of `InetSim`_, it's a project that provides
-fake services for malware to talk to. In order to use ``InetSim routing`` one
-will have to setup InetSim on the host machine (or in a separate VM) and
-configure Cuckoo so that it knows where to find the InetSim server.
+`InetSim`_ 是一个提供模拟网络服务的开源软件。 如果需要使用 InetSim Routing 
+我们需要部署 `InetSim`_ 并且配置相关信息，让Cuckoo 可以使用。
 
-The configuration for InetSim is self-explanatory and can be found as part
-of the ``$CWD/conf/routing.conf`` configuration file::
+``$CWD/conf/routing.conf`` 中的配置::
 
     [inetsim]
     enabled = yes
     server = 192.168.56.1
 
-In order to quickly get started with InetSim it is possible to download
-the latest version of the `REMnux`_ distribution which features - among many
-other tools - the latest version of InetSim. Naturally this VM will
-require its own static IP address which should then be configured in the
-``routing.conf`` configuration file.
+为了尽快的使用InetSim， 可以下载最新的 `REMnux`_ 发布版本，它包含了最新版本的InetSim。
+
+.. note::
+    【译者注】 REMnux 是个包含了很多分析工具的虚拟机。
 
 .. _InetSim: http://www.inetsim.org/
 .. _REMnux: https://remnux.org/
@@ -236,6 +187,9 @@ require its own static IP address which should then be configured in the
 
 Tor Routing
 ^^^^^^^^^^^
+
+.. note::
+    【译者注】 Tor 网络国内基本无法使用，就不翻译了。
 
 .. note:: Although we **highly discourage** the use of Tor for malware analysis
     - the maintainers of ``Tor exit nodes`` already have a hard enough time
@@ -276,18 +230,12 @@ correctly.
 VPN Routing
 ^^^^^^^^^^^
 
-Last but not least, it is possible to route analyses through a number of VPNs.
-By defining a couple of VPNs, perhaps ending up in different countries, it may
-be possible to see if potentially malicious samples behave differently
-depending on the country of origin of its IP address.
+VPN 路由允许通过多个VPN节点进行分析。 通过在配置文件中设置不同国家的VPN信息， 
+我们可以模拟在不同的国家和IP地址下， 恶意软件是否有不同的行为。
 
-The configuration for a VPN is much like the configuration of a VM. For each
-VPN you will need one section in the ``$CWD/conf/routing.conf`` configuration
-file detailing the relevant information for the VPN. In the configuration the
-VPN will also have to be *registered* in the list of available VPNs (exactly
-the same as you'd do for registering more VMs).
+VPN的配置和虚拟机信息的配置很类似， 配置在 ``$CWD/conf/routing.conf`` 文件中。
 
-Configuration for a single VPN looks roughly as follows::
+一个配置样例如下 ::
 
     [vpn]
     # Are VPNs enabled?
@@ -319,5 +267,4 @@ Configuration for a single VPN looks roughly as follows::
     # for existing names and IDs).
     rt_table = tun0
 
-.. note:: It is required to register each VPN network interface with iproute2
-    as described in the :ref:`routing_iproute2` section.
+.. note:: 每个VPN网卡需要在 :ref:`routing_iproute2` 中配置.
