@@ -1,9 +1,8 @@
 ==============================
-Cuckoo Working Directory Usage
+Cuckoo 工作目录使用说明
 ==============================
 
-.. note:: Before reading this page, please read on installing Cuckoo and
-    the :doc:`../installation/host/cwd`.
+.. note:: 本章阅读前，可以先看下Cuckoo安装和 :doc:`../installation/host/cwd`.
 
 Before we go into the subject of using the ``CWD`` we're first going to walk
 you through the many improvements on your Quality of Life during your daily
