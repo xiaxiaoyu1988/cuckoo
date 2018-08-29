@@ -1,9 +1,9 @@
 .. Usage chapter frontpage
 
-Usage
+使用说明
 =====
 
-This chapter explains how to use Cuckoo.
+本章主要介绍如何使用Cuckoo.
 
 .. toctree::
 

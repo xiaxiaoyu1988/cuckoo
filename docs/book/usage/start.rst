@@ -1,12 +1,12 @@
 ===============
-Starting Cuckoo
+启动 Cuckoo
 ===============
 
-To start Cuckoo use the command::
+使用如下命令可以启动Cuckoo::
 
     $ cuckoo
 
-You will get an output similar to this::
+启动后，可以看到如下的日志输出::
 
       eeee e   e eeee e   e  eeeee eeeee
       8  8 8   8 8  8 8   8  8  88 8  88
@@ -26,13 +26,12 @@ You will get an output similar to this::
     2017-03-31 17:08:53,964 [cuckoo.core.scheduler] INFO: Waiting for analysis tasks.
 
 
-Note that Cuckoo checks for updates on a remote API located at
-``api.cuckoosandbox.org``. You can avoid this by disabling the
-``version_check`` option in the configuration file.
+Cuckoo 会在开始的时候，请求 ``api.cuckoosandbox.org`` 检查更新。
+不过可以在配置文件中修改 ``version_check`` 来关闭更新检查。
 
-Now Cuckoo is ready to run and it's waiting for submissions.
+启动完成后，Cuckoo 就等着提交文件来分析了。
 
-``cuckoo`` accepts some command line options as shown by the help::
+``cuckoo`` 有多个命令行参数，通过 --help 参数可以看到所有的参数::
 
     $ cuckoo --help
     Usage: cuckoo [OPTIONS] COMMAND [ARGS]...
@@ -74,34 +73,29 @@ Now Cuckoo is ready to run and it's waiting for submissions.
       submit       Submit one or more files or URLs to Cuckoo.
       web          Operate the Cuckoo Web Interface.
 
-The ``--debug`` and ``--quiet`` flags increase and decrease the logging
-verbosity for the ``cuckoo`` command or any of its subcommands.
+``--debug`` 和 ``--quiet`` 用来控制Cuckoo的日志级别。
 
 .. _cuckoo_background:
 
-Cuckoo in the background
+后台运行 Cuckoo
 ========================
 
-Running Cuckoo manually is useful the first few times you start using it, but
-if you're running multiple machines with Cuckoo on it, you will want the
-process of running Cuckoo to be automated.
+刚开始用的时候，手动起几次Cuckoo没什么感觉， 
+但是如果有很多台机器去管理的话， 自动化的运行Cuckoo就比较有必要了。
 
-Fortunately Cuckoo will automatically provide one with a ``supervisord.conf``
-file in the ``Cuckoo Working Directory`` (this topic will be explained on the
-next page) which may be started either by running ``supervisord`` from the
-``CWD`` directory, or by providing the configuration directly to
-``supervisord`` as follows::
+幸运的是，Cuckoo在 ``CWD`` 目录提供了一个 supervisord 的配置文件  ``supervisord.conf`` 。
+
+运行  ``supervisord`` 指定配置文件路径::
 
     $ supervisord -c $CWD/supervisord.conf
 
-It should be noted that, by default, ``supervisord`` will also start four
-:ref:`cuckoo_process` instances, which means that, as per its documentation,
-the ``process_results`` configuration in ``$CWD/conf/cuckoo.conf`` should be
-disabled (i.e., change the value from ``on`` to ``off``).
+.. note::
+    【译者注】 supervisord 类似 Watchdog， 如果Cuckoo进程不存在，就会自动拉起。
 
-From there on, one may start and stop the various cuckoo processes (i.e., the
-main cuckoo process and the four processing instances) by running commands
-such as the following (assuming that they're run from the ``CWD``)::
+需要注意的是， 默认情况下 ``supervisord`` 会启动4个 :ref:`cuckoo_process` 实例。
+要把 ``$CWD/conf/cuckoo.conf`` 配置中的 ``process_results`` 选项关闭。
+
+配置好之后， 通过 supervisord 就可以管理cuckoo 进程了， 例如::
 
     # Stop the Cuckoo daemon and the processing utilities.
     $ supervisorctl stop cuckoo:
@@ -109,6 +103,5 @@ such as the following (assuming that they're run from the ``CWD``)::
     # Start the Cuckoo daemon and the processing utilities.
     $ supervisorctl start cuckoo:
 
-Note that you'll need the trailing colon (i.e., ``cuckoo:``) so to denote the
-Cuckoo supervisor ``group``, containing the Cuckoo daemon process as well as
-the various processing utilities.
+注意下， 命令中 cuckoo 后面 需要有个 冒号 :
+表示一组cuckoo进程，包含process 和 daemon进程。

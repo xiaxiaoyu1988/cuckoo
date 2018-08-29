@@ -6,6 +6,9 @@ Upgrading from a previous release
    Automatically upgrade from an older Cuckoo setup into a new one by
    importing the old setup.
 
+.. note::
+    【译者注】 暂时没有用到，后续再翻译。
+
 This document describes the process of *importing* an older Cuckoo setup in
 order to upgrade your Cuckoo to the latest and greatest version. This
 importing process is possible for **Cuckoo 0.6 and upwards**. Naturally it

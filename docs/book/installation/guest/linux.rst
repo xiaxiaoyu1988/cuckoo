@@ -2,6 +2,9 @@
 Installing the Linux host
 =========================
 
+.. note::
+    【译者注】 暂时没有用到，就不翻译了。
+
 Install dependencies on host::
 
     $ sudo apt-get install uml-utilities bridge-utils
