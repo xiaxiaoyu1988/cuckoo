@@ -2,24 +2,18 @@
 安装客户端
 ====================
 
-From release 0.4 Cuckoo adopts a custom agent that runs inside the Guest and
-that handles the communication and the exchange of data with the Host.
-This agent is designed to be cross-platform, therefore you should be able
-to use it on Windows, Android, Linux, and Mac OS X.
-In order to make Cuckoo work properly, you'll have to install and start this
-agent.
+从0.4版本起， Cuckoo设计了以跨平台的交互客户端，可以在Windows， Android， Linux
+和Mac OSX 系统上运行。
 
-It's quite simple.
+只有安装和启动了Cuckoo 客户端， 分析才能工作正常。
 
-In the ``$CWD/agent/`` directory you will find the ``agent.py`` file. Copy
-this file to the Guest operating system (in whatever way you want, perhaps a
-temporary shared folder or by downloading it from a webserver on the host, we
-recommend the latter) and run it. The Agent will launch a small API server
-that the host will be able to talk to.
+客户端的安装和启动是十分简单的。
 
-On Windows simply launching the script will also spawn a Python window, if
-you want to hide it you can rename the file from ``agent.py`` to **agent.pyw**
-which will prevent the console window from spawning.
+在 ``$CWD/agent/`` 目录中，可以找到 ``agent.py`` 文件。
+把文件拷贝到虚拟机中， 然后将脚本启动起来。
+客户端会启动一个小型的API服务，用于与宿主机通信。 
 
-If you want the script to be launched at Windows' boot, just place the file in
-the `Startup` folder.
+在Windows系统中， 只要将脚本名称 从 ``agent.py`` 改为 **agent.pyw** ，
+可以在运行的时候不显示终端的窗口。
+
+将脚本拷贝到 `启动` 目录， 即可实现脚本开机自启动。

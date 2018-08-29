@@ -1,28 +1,21 @@
 ==========================
-Saving the Virtual Machine
+保存虚拟机
 ==========================
 
-Now you should be ready to save the virtual machine to a snapshot state.
+在快照之前，**一定要确保 Windows系统完全启动了，并且客户端在运行**。
 
-Before doing this **make sure you rebooted it softly and that it's currently
-running, with Cuckoo's agent running and with Windows fully booted**.
+虚拟机准备好之后，做一个快照，保存准备好的状态， 每种虚拟机软件，快照的方式都略有不同。
 
-Now you can proceed saving the machine. The way to do it obviously depends on
-the virtualization software you decided to use.
-
-If you follow all the below steps properly, your virtual machine should be ready
-to be used by Cuckoo.
+下面介绍了几种不同的虚拟机下快照的方法。
 
 VirtualBox
 ==========
 
-If you are going for VirtualBox you can take the snapshot from the graphical user
-interface or from the command line::
+VirtualBox可以在图形界面上直接创建快照或者通过命令行创建::
 
     $ VBoxManage snapshot "<Name of VM>" take "<Name of snapshot>" --pause
 
-After the snapshot creation is completed, you can power off the machine and
-restore it::
+快照创建好之后，可以通过如下命令关机和还原快照::
 
     $ VBoxManage controlvm "<Name of VM>" poweroff
     $ VBoxManage snapshot "<Name of VM>" restorecurrent
@@ -30,26 +23,22 @@ restore it::
 KVM
 ===
 
-If decided to adopt KVM, you must first of all be sure to use a disk format for
-your virtual machines which supports snapshots.
-By default libvirt tools create RAW virtual disks, and since we need snapshots
-you'll either have to use QCOW2 or LVM. For the scope of this guide we adopt QCOW2,
-which is easier to setup than LVM.
+如果决定使用KVM的话，首先必须选择一种支持快照的磁盘镜像格式。
+我们推荐使用QCOW2格式， 创建快照较为便捷。
 
-The easiest way to create such a virtual disk correctly is using the tools
-provided by the libvirt suite. You can either use ``virsh`` if you prefer
-command-line interfaces or ``virt-manager`` for a nice GUI.
-You should be able to directly create it in QCOW2 format, but in case you have
-a RAW disk you can convert it like this::
+使用libvirt来操作KVM虚拟机是最方便的， 它提供了 ``virsh`` 和 ``virt-manager``
+的命令行或者界面方式来管理虚拟机。
+
+如果之前创建的虚拟机不是QCOW2的格式，也可以通过命令来转化格式，例如::
 
     $ cd /your/disk/image/path
     $ qemu-img convert -O qcow2 your_disk.raw your_disk.qcow2
 
-Now you have to edit your VM definition as follows::
+然后修改虚拟机定义文件::
 
     $ virsh edit "<Name of VM>"
 
-Find the disk section, it looks like this::
+找到磁盘相关的部分::
 
     <disk type='file' device='disk'>
         <driver name='qemu' type='raw'/>
@@ -58,7 +47,7 @@ Find the disk section, it looks like this::
         <address type='drive' controller='0' bus='0' unit='0'/>
     </disk>
 
-And change "type" to qcow2 and "source file" to your qcow2 disk image, like this::
+修改磁盘的文件后缀::
 
     <disk type='file' device='disk'>
         <driver name='qemu' type='qcow2'/>
@@ -67,18 +56,17 @@ And change "type" to qcow2 and "source file" to your qcow2 disk image, like this
         <address type='drive' controller='0' bus='0' unit='0'/>
     </disk>
 
-Now test your virtual machine, if everything works prepare it for snapshotting while
-running Cuckoo's agent. This means the virtual machine needs to be running
-while you are taking the snapshot. Then you can shut it down.
-You can finally take a snapshot with the following command::
+重新开机测试虚拟机是否正常。
+
+快照创建命令如下::
 
     $ virsh snapshot-create "<Name of VM>"
 
-Having multiple snapshots can cause errors::
+有多个快照的情况下，有可能导致如下的错误::
 
     ERROR: No snapshot found for virtual machine VM-Name
 
-VM snapshots can be managed using the following commands::
+虚拟机快照的查看和删除，可以通过以下命令::
 
     $ virsh snapshot-list "VM-Name"
     $ virsh snapshot-delete "VM-Name" 1234567890
@@ -86,18 +74,20 @@ VM snapshots can be managed using the following commands::
 VMware Workstation
 ==================
 
-If you decided to adopt VMware Workstation, you can take the snapshot from the graphical user
-interface or from the command line::
+VMware也可以通过界面或者命令行的方式来创建快照::
 
     $ vmrun snapshot "/your/disk/image/path/wmware_image_name.vmx" your_snapshot_name
 
-Where your_snapshot_name is the name you choose for the snapshot.
-After that power off the machine from the GUI or from the command line::
+your_snapshot_name 是快照的名称。
+创建完成之后关闭虚拟机，可以通过界面或者命令行方式::
 
     $ vmrun stop "/your/disk/image/path/wmware_image_name.vmx" hard
 
 XenServer
 =========
+
+.. note::
+    【译者注】 XenServer没有用到，就不翻译了。
 
 If you decided to adopt XenServer, the XenServer machinery supports starting
 virtual machines from either disk or a memory snapshot. Creating and reverting

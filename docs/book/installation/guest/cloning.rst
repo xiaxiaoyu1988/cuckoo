@@ -1,12 +1,10 @@
 ===========================
-Cloning the Virtual Machine
+虚拟机克隆
 ===========================
 
-In case you planned to use more than one virtual machine, there's no need to
-repeat all the steps done so far: you can clone it. In this way you'll have
-a copy of the original virtualized Windows with all requirements already
-installed.
+如果打算同时跑多个虚拟机，就需要用到虚拟机克隆。
+通过克隆即可拥有多个准备好的虚拟机了。
 
-The new virtual machine will also contain all the settings of the original one,
-which is not good. Now you need to proceed repeating the steps explained in
-:doc:`network`, :doc:`agent` and :doc:`saving` for this new machine.
+克隆的新虚拟机也同样包含的一样的配置。 如果有问题的话，还是需要按照之前的章节
+来重新配置新克隆的虚拟机。 可以参考 :doc:`network`, :doc:`agent` :doc:`saving`
+不过一般情况下是不会出现的。
