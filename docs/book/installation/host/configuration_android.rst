@@ -7,6 +7,9 @@ Configuration (Android Analysis)
     a Cuckoo Package. Proper Android integration will be picked up as a Cuckoo
     update in the future.
 
+.. note::
+    【译者注】 暂时不支持了，后续再说。
+
 To get Cuckoo running Android analysis you should download the
 `Android SDK <https://developer.android.com>`_ and extract it in a folder
 Cuckoo can access. You should also configure :ref:`avd_conf` with the settings

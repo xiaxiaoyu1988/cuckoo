@@ -1,14 +1,10 @@
 ===================
-Preparing the Guest
+客户机的准备
 ===================
 
-At this point you should have configured the Cuckoo host component and you
-should have designed and defined the number and the names of the virtual
-machines you are going to use for malware execution.
+到这里，你应该已经配置好Cuckoo， 也设计和定义好需要用于分析的虚拟机了。
 
-Now it's time to create such machines and to configure them properly. The
-following documentation details the entire setup guide for Windows-based
-Guests. For Linux Guests, please read :doc:`linux`.
+现在我们就跟着下面的文件来安装和设置虚拟机，以Windows系统为例，linux的虚拟机参考 :doc:`linux`.
 
 .. toctree::
 

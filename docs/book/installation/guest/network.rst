@@ -1,52 +1,37 @@
 =====================
-Network Configuration
+网络配置
 =====================
 
-Now it's time to setup the network for your virtual machine.
+现在开始配置虚拟机的网络。
 
-Windows Settings
+Windows 设置
 ================
 
-Before configuring the underlying networking of the virtual machine, you might
-want to tweak some settings inside Windows itself.
+在配置底层网络之前，可能需要调整一些windows虚拟机的内部配置。
 
-One of the most important things to do is **disabling** *Windows Firewall* and the
-*Automatic Updates*. The reason behind this is that they can affect the behavior
-of the malware under normal circumstances and that they can pollute the network
-analysis performed by Cuckoo, by dropping connections or including irrelevant
-requests.
+最重要的事情是 **关闭** *Windows 防火墙* 和 *自动更新*。
+这些都会影响恶意软件的行为，进而影响Cuckoo对这些行为的分析。
 
-You can do so from Windows' Control Panel as shown in the picture:
+可以在Windows 控制面板中关闭相应的开关，如下图所示:
 
     .. image:: ../../_images/screenshots/windows_security.png
         :align: center
 
-Virtual Networking
+虚拟网络
 ==================
 
-Now you need to decide how to make your virtual machine able to access
-Internet or your local network.
+现在可以决定虚拟机如何访问互联网或者本地局域网。
 
-While in previous releases Cuckoo used shared folders to exchange data between
-the Host and Guests, from release 0.4 it adopts a custom agent that works
-over the network using a simple XMLRPC protocol.
+以前老的版本中， Cuckoo 虚拟机和宿主机之间的数据是通过共享文件夹进行交互。
+从0.4版本起，则通过XMLRPC 协议来交互。
 
-In order to make it work properly you'll have to configure your machine's
-network so that the Host and the Guest can communicate. Testing the network
-access by pinging a guest is a good practice, to make sure the virtual network
-was set up correctly. Use only static IP addresses for your guest, as Cuckoo
-doesn't support DHCP and using it will break your setup.
+所以，需要配置给虚拟机配置静态IP，配置完成后，通过PING来测试虚拟机与宿主机之间
+的通信是否正常。不要使用DHCP， 每次IP都不同的情况下，无法正常通信。
 
-This stage is very much up to your own requirements and to the
-characteristics of your virtualization software.
+这些配置都要依赖于你的需求和所选的虚拟机软件的特性。
 
-.. warning:: Virtual networking errors!
-    Virtual networking is a vital component for Cuckoo, you must be really
-    sure to get connectivity between host and guest. Most of the issues
-    reported by users are related to a wrong setup of their networking.
-    If you aren't sure about that check your virtualization software
-    documentation and test connectivity with ping and telnet.
+.. warning:: 虚拟网络报错!
+    虚拟网络配置是非常重要的部分。大部分Cuckoo遇到的问题都与网络配置有关系。
+    在你配置完成之后， 尽量用PING和TELNET工具测试是否正常。
 
-The recommended setup is using a **Host-Only networking layout** with proper
-forwarding. More on such network routing can be found in
-:doc:`../host/routing`, which is part of the host machine setup.
+推荐使用 *Host-Only* 模式的虚拟网络。 可以查看 :doc:`../host/routing` 获取更多信息。

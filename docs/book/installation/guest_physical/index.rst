@@ -2,6 +2,9 @@
 Preparing the Guest (Physical Machine)
 ======================================
 
+.. note::
+    【译者注】 主要使用虚拟机，物理机就不翻译了。
+
 .. warning::
     This chapter only applies for a Physical Machine setup! For normal Cuckoo
     usage please ignore it.

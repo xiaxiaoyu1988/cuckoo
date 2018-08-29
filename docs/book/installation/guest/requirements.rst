@@ -1,43 +1,33 @@
 ============
-Requirements
+依赖
 ============
 
-In order to make Cuckoo run properly in your virtualized Windows system, you
-will have to install some required software and libraries.
+为了Windows虚拟机可以与Cuckoo工作正常，需要安装一些必须的软件和库。
 
-Install Python
+安装 Python
 ==============
 
-Python is a strict requirement for the Cuckoo guest component (*analyzer*) in
-order to run properly.
+Python 是 Cuckoo 客户端（*分析器*） 正常工作的必须软件。
 
-You can download the proper Windows installer from the `official website`_.
-Also in this case Python 2.7 is preferred.
+可以直接从官网下载安装，要求 Python2.7 版本。
 
-Some Python libraries are optional and provide some additional features to
-Cuckoo guest component. They include:
+Cuckoo 客户端组件依赖于部分额外的Python 库， 包括:
 
-    * `Python Pillow`_: it's used for taking screenshots of the Windows desktop during the analysis.
+    * `Python Pillow`_: 截图组件需要用到.
 
-They are not strictly required by Cuckoo to work properly, but you are encouraged
-to install them if you want to have access to all available features. Make sure
-to download and install the proper packages according to your Python version.
+这些组件不是必须要安装的， 但是不安装的话，分析组件的部分功能就无法正常使用。
 
 .. _`official website`: http://www.python.org/getit/
 .. _`Python Pillow`: https://python-pillow.org/
 
-Additional Software
+其他软件
 ===================
 
-At this point you should have installed everything needed by Cuckoo to run
-properly.
+至此，Cuckoo 正常工作所需的软件的已经安装完成了。
 
-Depending on what kind of files you want to analyze and what kind of sandboxed
-Windows environment you want to run the malware samples in, you might want to install
-additional software such as browsers, PDF readers, office suites etc.
-Remember to disable the "auto update" or "check for updates" feature of
-any additional software.
+不过根据你需要分析的文件类型， 也同时需要安装相应的软件， 例如浏览器，PDF阅读器，Office软件等。
+记得要关闭这些软件的检查更新和自动更新。
 
-This is completely up to you and to what your needs are. You can get some hints
-by reading the :doc:`../../introduction/sandboxing` chapter.
+这些额外的软件是否需要安装，完全取决于你是否所需。 
+可以阅读 :doc:`../../introduction/sandboxing` 章节了解更多的信息.
 

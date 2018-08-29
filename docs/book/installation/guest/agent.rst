@@ -1,5 +1,5 @@
 ====================
-Installing the Agent
+安装客户端
 ====================
 
 From release 0.4 Cuckoo adopts a custom agent that runs inside the Guest and
