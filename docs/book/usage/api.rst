@@ -2,47 +2,40 @@
 REST API
 ========
 
-As mentioned in :doc:`submit`, Cuckoo provides a simple and lightweight REST
-API server that is under the hood implemented using `Flask`_.
+正在 :doc:`submit` 章节提到的， Cuckoo 提供一个基于 `Flask`_ 的轻量级 RESET APT 服务。
 
 .. _`Flask`: http://flask.pocoo.org/
 
-Starting the API server
+启动 API 服务
 =======================
 
-In order to start the API server you can simply do::
+API 启动命令如下::
 
     $ cuckoo api
 
-By default it will bind the service on **localhost:8090**. If you want to change
-those values, you can use the following syntax::
+默认情况下绑定的是 **localhost:8090**.
+如果需要修改监听，命令如下::
 
     $ cuckoo api --host 0.0.0.0 --port 1337
     $ cuckoo api -H 0.0.0.0 -p 1337
 
-Web deployment
+Web 部署
 --------------
 
-While the default method of starting the API server works fine for many cases,
-some users may wish to deploy the server in a robust manner. This can be done
-by exposing the API as a WSGI application through a web server. This section shows
-a simple example of deploying the API via `uWSGI`_ and `nginx`_. These
-instructions are written with Ubuntu GNU/Linux in mind, but may be adapted for
-other platforms.
+默认的方式已经可以处理大部分场景。
+如果需要更高的性能和稳定性，可以使用 `uWSGI`_ 和 `nginx`_ 来部署API。
 
-This solution requires uWSGI, the uWSGI Python plugin, and nginx. All are
-available as packages::
+uWSGI 部署需要安装相关依赖::
 
     $ sudo apt-get install uwsgi uwsgi-plugin-python nginx
 
-uWSGI setup
+uWSGI 设置
 ^^^^^^^^^^^
 
 First, use uWSGI to run the API server as an application.
 
-To begin, create a uWSGI configuration file at
-``/etc/uwsgi/apps-available/cuckoo-api.ini`` that contains the actual
-configuration as reported by the ``cuckoo api --uwsgi`` command::
+首先通过 ``cuckoo api --uwsgi`` 来生成 uWSGI 的配置文件内容， 配置文件存储在
+``/etc/uwsgi/apps-available/cuckoo-api.ini`` ，内容如下::
 
     $ cuckoo api --uwsgi
     [uwsgi]
@@ -55,13 +48,11 @@ configuration as reported by the ``cuckoo api --uwsgi`` command::
     env = CUCKOO_APP=api
     env = CUCKOO_CWD=/home/..somepath..
 
-This configuration inherits a number of settings from the distribution's
-default uWSGI configuration and imports ``cuckoo.apps.api`` from the Cuckoo
-package to do the actual work. In this example we installed Cuckoo in a
-virtualenv located at ``/home/cuckoo/cuckoo``. If Cuckoo is installed globally
-no virtualenv option is required.
+配置文件中大部分内容是继承自 uWSGI的默认配置， 以及导入了 ``cuckoo.apps.api``。
+由于示例中 Cuckoo 是通过 virtualenv  来安装的，所以配置中含有了相关信息，
+如果不是 virtualenv 安装，则没有类似的配置信息
 
-Enable the app configuration and start the server.
+连接配置文件，启动 uwsgi 应用.
 
 .. code-block:: bash
 
@@ -70,20 +61,17 @@ Enable the app configuration and start the server.
 
 .. note::
 
-   Logs for the application may be found in the standard directory for distribution
-   app instances, i.e., ``/var/log/uwsgi/app/cuckoo-api.log``.
-   The UNIX socket is created in a conventional location as well,
+   uwsgi 的日志文件路径 ``/var/log/uwsgi/app/cuckoo-api.log``.
+   UNIX socket 文件路径
    ``/run/uwsgi/app/cuckoo-api/socket``.
 
-nginx setup
+nginx 设置
 ^^^^^^^^^^^
 
-With the API server running in uWSGI, nginx can now be set up to run as a web
-server/reverse proxy, backending HTTP requests to it.
+uWSGI的应用已经跑起来了，接下来把NGINX配置成反向代理模式，转发HTTP请求到uWSGI应用。
 
-To begin, create a nginx configuration file at
-``/etc/nginx/sites-available/cuckoo-api`` that contains the actual
-configuration as reportd by the ``cuckoo api --nginx`` command::
+通过 ``cuckoo api --nginx`` 命令生成配置文件内容， 
+配置文件存储到 ``/etc/nginx/sites-available/cuckoo-api`` 目录::
 
     $ cuckoo api --nginx
     upstream _uwsgi_cuckoo_api {
@@ -101,80 +89,79 @@ configuration as reportd by the ``cuckoo api --nginx`` command::
         }
     }
 
-Make sure that nginx can connect to the uWSGI socket by placing its user in the
-**cuckoo** group::
+确保 Nginx 有权限连接到uWSGI 应用。
+如果 cuckoo 以 **cuckoo** 用户组运行， 则需要将www-data 用户加入到用户组::
 
     $ sudo adduser www-data cuckoo
 
-Enable the server configuration and start the server.
+链接配置，并启动nginx
 
 .. code-block:: bash
 
     $ sudo ln -s /etc/nginx/sites-available/cuckoo-api /etc/nginx/sites-enabled/
     $ sudo service nginx start    # or reload, if already running
 
-At this point, the API server should be available at port **8090** on the server.
-Various configurations may be applied to extend this configuration, such as to
-tune server performance, add authentication, or to secure communications using
-HTTPS.
+至此 web 界面就跑起来了， 监听端口是 **8090**。
+接下来可以继续调整配置，例如调整nginx的性能参数，或者使用https 服务， 
+这些本文档就不做详细说明了， 各位如果有兴趣，可以自己去研究。
 
 .. _`uWSGI`: http://uwsgi-docs.readthedocs.org/en/latest/
 .. _`nginx`: http://nginx.org/
 
-Resources
+接口
 =========
 
-Following is a list of currently available resources and a brief description of
-each one. For details click on the resource name.
+下表是当前可用的接口和简单描述， 欲知详情，可以点击接口名称
+
 
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| Resource                            | Description                                                                                                      |
+| 接口名称                            | 接口描述                                                                                                         |
 +=====================================+==================================================================================================================+
-| ``POST`` :ref:`tasks_create_file`   | Adds a file to the list of pending tasks to be processed and analyzed.                                           |
+| ``POST`` :ref:`tasks_create_file`   | 提交一个样本并创建分析任务.                                                                                      |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``POST`` :ref:`tasks_create_url`    | Adds an URL to the list of pending tasks to be processed and analyzed.                                           |
+| ``POST`` :ref:`tasks_create_url`    | 提交一个URL并创建分析任务.                                                                                       |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``POST`` :ref:`tasks_create_submit` | Adds one or more files and/or files embedded in archives to the list of pending tasks.                           |
+| ``POST`` :ref:`tasks_create_submit` | 提交一个或多个样本并创建分析任务.                                                                                |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`tasks_list`           | Returns the list of tasks stored in the internal Cuckoo database.                                                |
-|                                     | You can optionally specify a limit of entries to return.                                                         |
+| ``GET`` :ref:`tasks_list`           | 返回数据中存储的分析任务列表.                                                                                    |
+|                                     | 可通过参数控制返回的任务数量.                                                                                    |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`tasks_sample`         | Returns the list of tasks stored in the internal Cuckoo database for a given sample.                             |
+| ``GET`` :ref:`tasks_sample`         | 根据样本ID返回任务列表.                                                                                          |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`tasks_view`           | Returns the details on the task assigned to the specified ID.                                                    |
+| ``GET`` :ref:`tasks_view`           | 根据任务ID返回任务详情.                                                                                          |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`tasks_reschedule`     | Reschedule a task assigned to the specified ID.                                                                  |
+| ``GET`` :ref:`tasks_reschedule`     | 根据任务ID重新开始任务.                                                                                          |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`tasks_delete`         | Removes the given task from the database and deletes the results.                                                |
+| ``GET`` :ref:`tasks_delete`         | 根据任务ID删除任务和任务报表.                                                                                    |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`tasks_report`         | Returns the report generated out of the analysis of the task associated with the specified ID.                   |
-|                                     | You can optionally specify which report format to return, if none is specified the JSON report will be returned. |
+| ``GET`` :ref:`tasks_report`         | 根据任务ID返回报表内容.                                                                                          |
+|                                     | 默认为JSON格式报表，可选其他格式                                                                                 |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`tasks_shots`          | Retrieves one or all screenshots associated with a given analysis task ID.                                       |
+| ``GET`` :ref:`tasks_shots`          | 根据任务ID和截图ID返回截图内容.                                                                                  |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`tasks_rereport`       | Re-run reporting for task associated with a given analysis task ID.                                              |
+| ``GET`` :ref:`tasks_rereport`       | 根据任务ID重新生成报表.                                                                                          |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`tasks_reboot`         | Reboot a given analysis task ID.                                                                                 |
+| ``GET`` :ref:`tasks_reboot`         | 根据任务ID重启任务.                                                                                              |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`memory_list`          | Returns a list of memory dump files associated with a given analysis task ID.                                    |
+| ``GET`` :ref:`memory_list`          | 根据任务ID 返回memory dump 列表.                                                                                 |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`memory_get`           | Retrieves one memory dump file associated with a given analysis task ID.                                         |
+| ``GET`` :ref:`memory_get`           | 根据任务ID和memory dump id返回Memory dump内容.                                                                   |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`files_view`           | Search the analyzed binaries by MD5 hash, SHA256 hash or internal ID (referenced by the tasks details).          |
+| ``GET`` :ref:`files_view`           | 根据 MD5 hash, SHA256 hash 或者任务ID返回样本信息.                                                               |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`files_get`            | Returns the content of the binary with the specified SHA256 hash.                                                |
+| ``GET`` :ref:`files_get`            | 根据SHA256 hash值获取样本内容.                                                                                   |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`pcap_get`             | Returns the content of the PCAP associated with the given task.                                                  |
+| ``GET`` :ref:`pcap_get`             | 根据任务ID返回PCAP文件内容.                                                                                      |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`machines_list`        | Returns the list of analysis machines available to Cuckoo.                                                       |
+| ``GET`` :ref:`machines_list`        | 返回当前可用的虚拟机列表.                                                                                        |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`machines_view`        | Returns details on the analysis machine associated with the specified name.                                      |
+| ``GET`` :ref:`machines_view`        | 根据虚拟机名称返回虚拟机相信信息.                                                                                |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`cuckoo_status`        | Returns the basic cuckoo status, including version and tasks overview.                                           |
+| ``GET`` :ref:`cuckoo_status`        | 返回Cuckoo当前状态，包括版本信息和任务概览.                                                                      |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`vpn_status`           | Returns VPN status.                                                                                              |
+| ``GET`` :ref:`vpn_status`           | 返回VPN状态.                                                                                                     |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
-| ``GET`` :ref:`exit`                 | Shuts down the API server.                                                                                       |
+| ``GET`` :ref:`exit`                 | 关闭API服务.                                                                                                     |
 +-------------------------------------+------------------------------------------------------------------------------------------------------------------+
 
 .. _tasks_create_file:
@@ -184,7 +171,7 @@ each one. For details click on the resource name.
 
 **POST /tasks/create/file**
 
-Adds a file to the list of pending tasks. Returns the ID of the newly created task.
+提交一个样本并创建分析任务. 返回创建的任务ID.
 
 **Example request**::
 
@@ -219,25 +206,25 @@ Adds a file to the list of pending tasks. Returns the ID of the newly created ta
 
 **Form parameters**:
 
-* ``file`` *(required)* - sample file (multipart encoded file content)
-* ``package`` *(optional)* - analysis package to be used for the analysis
-* ``timeout`` *(optional)* *(int)* - analysis timeout (in seconds)
-* ``priority`` *(optional)* *(int)* - priority to assign to the task (1-3)
-* ``options`` *(optional)* - options to pass to the analysis package
-* ``machine`` *(optional)* - label of the analysis machine to use for the analysis
-* ``platform`` *(optional)* - name of the platform to select the analysis machine from (e.g. "windows")
-* ``tags`` *(optional)* - define machine to start by tags. Platform must be set to use that. Tags are comma separated
-* ``custom`` *(optional)* - custom string to pass over the analysis and the processing/reporting modules
-* ``owner`` *(optional)* - task owner in case multiple users can submit files to the same cuckoo instance
-* ``clock`` *(optional)* - set virtual machine clock (format %m-%d-%Y %H:%M:%S)
-* ``memory`` *(optional)* - enable the creation of a full memory dump of the analysis machine
-* ``unique`` *(optional)* - only submit samples that have not been analyzed before
-* ``enforce_timeout`` *(optional)* - enable to enforce the execution for the full timeout value
+* ``file`` *(required)* - 样本内容 (multipart encoded file content)
+* ``package`` *(optional)* - 样本文件类型
+* ``timeout`` *(optional)* *(int)* - 分析超时时长 (in seconds)
+* ``priority`` *(optional)* *(int)* - 任务优先级 (1-3)
+* ``options`` *(optional)* - 样本执行参数
+* ``machine`` *(optional)* - 指定运行的虚拟机名称
+* ``platform`` *(optional)* - 指定运行的虚拟机平台 (e.g. "windows")
+* ``tags`` *(optional)* - 指定虚拟机启动的tags，以逗号分割， 该选项生效的前提是 platform 参数必须设置
+* ``custom`` *(optional)* - 自定义字符串，用于分析和报表模块
+* ``owner`` *(optional)* - 指定任务所属责任人
+* ``clock`` *(optional)* - 设置虚拟机系统时间 (format %m-%d-%Y %H:%M:%S)
+* ``memory`` *(optional)* - 开启完整的虚拟机内存dump
+* ``unique`` *(optional)* - 只提交样本，不分析
+* ``enforce_timeout`` *(optional)* - 开启强制使用最大分析超时时长
 
 **Status codes**:
 
-* ``200`` - no error
-* ``400`` - duplicated file detected (when using unique option)
+* ``200`` - 接口提交成功
+* ``400`` - 样本已存在 (unique 参数开启的情况下)
 
 .. _tasks_create_url:
 
@@ -246,7 +233,7 @@ Adds a file to the list of pending tasks. Returns the ID of the newly created ta
 
 **POST /tasks/create/url**
 
-Adds a file to the list of pending tasks. Returns the ID of the newly created task.
+提交一个URL并创建分析任务. 返回创建的任务ID.
 
 **Example request**.
 
@@ -282,23 +269,23 @@ Adds a file to the list of pending tasks. Returns the ID of the newly created ta
 
 **Form parameters**:
 
-* ``url`` *(required)* - URL to analyze (multipart encoded content)
-* ``package`` *(optional)* - analysis package to be used for the analysis
-* ``timeout`` *(optional)* *(int)* - analysis timeout (in seconds)
-* ``priority`` *(optional)* *(int)* - priority to assign to the task (1-3)
-* ``options`` *(optional)* - options to pass to the analysis package
-* ``machine`` *(optional)* - label of the analysis machine to use for the analysis
-* ``platform`` *(optional)* - name of the platform to select the analysis machine from (e.g. "windows")
-* ``tags`` *(optional)* - define machine to start by tags. Platform must be set to use that. Tags are comma separated
-* ``custom`` *(optional)* - custom string to pass over the analysis and the processing/reporting modules
-* ``owner`` *(optional)* - task owner in case multiple users can submit files to the same cuckoo instance
-* ``memory`` *(optional)* - enable the creation of a full memory dump of the analysis machine
-* ``enforce_timeout`` *(optional)* - enable to enforce the execution for the full timeout value
-* ``clock`` *(optional)* - set virtual machine clock (format %m-%d-%Y %H:%M:%S)
+* ``url`` *(required)* - 待分析的URL (multipart encoded content)
+* ``package`` *(optional)* - 样本文件类型
+* ``timeout`` *(optional)* *(int)* - 分析超时时长 (in seconds)
+* ``priority`` *(optional)* *(int)* - 任务优先级 (1-3)
+* ``options`` *(optional)* - 样本执行参数
+* ``machine`` *(optional)* - 指定运行的虚拟机名称
+* ``platform`` *(optional)* - 指定运行的虚拟机平台 (e.g. "windows")
+* ``tags`` *(optional)* - 指定虚拟机启动的tags，以逗号分割， 该选项生效的前提是 platform 参数必须设置
+* ``custom`` *(optional)* - 自定义字符串，用于分析和报表模块
+* ``owner`` *(optional)* - 指定任务所属责任人
+* ``memory`` *(optional)* - 开启完整的虚拟机内存dump
+* ``enforce_timeout`` *(optional)* - 开启强制使用最大分析超时时长
+* ``clock`` *(optional)* - 设置虚拟机系统时间 (format %m-%d-%Y %H:%M:%S)
 
 **Status codes**:
 
-* ``200`` - no error
+* ``200`` - 提交成功
 
 .. _tasks_create_submit:
 
@@ -307,9 +294,8 @@ Adds a file to the list of pending tasks. Returns the ID of the newly created ta
 
 **POST /tasks/create/submit**
 
-Adds one or more files and/or files embedded in archives *or* a newline
-separated list of URLs/hashes to the list of pending tasks. Returns the
-submit ID as well as the task IDs of the newly created task(s).
+提交一个或多个样本 或者 多个URL或hash值 并创建分析任务。
+返回创建的任务ID列表。
 
 **Example request**.
 
@@ -365,22 +351,22 @@ submit ID as well as the task IDs of the newly created task(s).
 
 **Form parameters**:
 
-* ``file`` *(optional)* - backwards compatibility with naming scheme for :ref:`tasks_create_file`
-* ``files`` *(optional)* - sample(s) to inspect and add to our pending queue
-* ``strings`` *(optional)* - newline separated list of URLs and/or hashes (to be obtained using your VirusTotal API key)
-* ``timeout`` *(optional)* *(int)* - analysis timeout (in seconds)
-* ``priority`` *(optional)* *(int)* - priority to assign to the task (1-3)
-* ``options`` *(optional)* - options to pass to the analysis package
-* ``tags`` *(optional)* - define machine to start by tags. Platform must be set to use that. Tags are comma separated
-* ``custom`` *(optional)* - custom string to pass over the analysis and the processing/reporting modules
-* ``owner`` *(optional)* - task owner in case multiple users can submit files to the same cuckoo instance
-* ``memory`` *(optional)* - enable the creation of a full memory dump of the analysis machine
-* ``enforce_timeout`` *(optional)* - enable to enforce the execution for the full timeout value
-* ``clock`` *(optional)* - set virtual machine clock (format %m-%d-%Y %H:%M:%S)
+* ``file`` *(optional)* - 兼容 :ref:`tasks_create_file` 接口的样本
+* ``files`` *(optional)* - 提交分析队列的多个样本
+* ``strings`` *(optional)* - 按行分割的多个URL或HASH值列表 (to be obtained using your VirusTotal API key)
+* ``timeout`` *(optional)* *(int)* - 分析超时时长 (in seconds)
+* ``priority`` *(optional)* *(int)* - 任务优先级 (1-3)
+* ``options`` *(optional)* - 样本执行参数
+* ``tags`` *(optional)* - 指定虚拟机启动的tags，以逗号分割， 该选项生效的前提是 platform 参数必须设置
+* ``custom`` *(optional)* - 自定义字符串，用于分析和报表模块
+* ``owner`` *(optional)* - 指定任务所属责任人
+* ``memory`` *(optional)* - 开启完整的虚拟机内存dump
+* ``enforce_timeout`` *(optional)* - 开启强制使用最大分析超时时长
+* ``clock`` *(optional)* - 设置虚拟机系统时间 (format %m-%d-%Y %H:%M:%S)
 
 **Status codes**:
 
-* ``200`` - no error
+* ``200`` - 提交成功
 
 .. _tasks_list:
 
@@ -389,7 +375,7 @@ submit ID as well as the task IDs of the newly created task(s).
 
 **GET /tasks/list/** *(int: limit)* **/** *(int: offset)*
 
-Returns list of tasks.
+返回任务列表.
 
 **Example request**.
 
@@ -455,12 +441,12 @@ Returns list of tasks.
 
 **Parameters**:
 
-* ``limit`` *(optional)* *(int)* - maximum number of returned tasks
-* ``offset`` *(optional)* *(int)* - data offset
+* ``limit`` *(optional)* *(int)* - 返回的最大任务数量
+* ``offset`` *(optional)* *(int)* - 任务列表开始位置
 
 **Status codes**:
 
-* ``200`` - no error
+* ``200`` - 成功
 
 .. _tasks_sample:
 
@@ -469,7 +455,7 @@ Returns list of tasks.
 
 **GET /tasks/sample/** *(int: sample_id)*
 
-Returns list of tasks for sample.
+根据样本ID返回任务列表.
 
 **Example request**.
 
@@ -513,11 +499,11 @@ Returns list of tasks for sample.
 
 **Parameters**:
 
-* ``sample_id`` *(required)* *(int)* - sample id to list tasks for
+* ``sample_id`` *(required)* *(int)* - 样本ID
 
 **Status codes**:
 
-* ``200`` - no error
+* ``200`` - 成功
 
 .. _tasks_view:
 
@@ -526,7 +512,7 @@ Returns list of tasks for sample.
 
 **GET /tasks/view/** *(int: id)*
 
-Returns details on the task associated with the specified ID.
+根据任务ID返回任务详情.
 
 **Example request**.
 
@@ -566,7 +552,7 @@ Returns details on the task associated with the specified ID.
         }
     }
 
-Note: possible value for key ``status``:
+Note: ``status`` 参数包含以下几种状态:
 
 * ``pending``
 * ``running``
@@ -575,12 +561,12 @@ Note: possible value for key ``status``:
 
 **Parameters**:
 
-* ``id`` *(required)* *(int)* - ID of the task to lookup
+* ``id`` *(required)* *(int)* - 任务ID
 
 **Status codes**:
 
-* ``200`` - no error
-* ``404`` - task not found
+* ``200`` - 成功
+* ``404`` - 未找到任务
 
 .. _tasks_reschedule:
 
@@ -589,8 +575,7 @@ Note: possible value for key ``status``:
 
 **GET /tasks/reschedule/** *(int: id)* **/** *(int: priority)*
 
-Reschedule a task with the specified ID and priority (default priority
-is 1).
+根据任务ID重新设置任务分析计划，设置任务优先级，默认为 1
 
 **Example request**.
 
@@ -608,13 +593,13 @@ is 1).
 
 **Parameters**:
 
-* ``id`` *(required)* *(int)* - ID of the task to reschedule
-* ``priority`` *(optional)* *(int)* - Task priority
+* ``id`` *(required)* *(int)* - 任务ID
+* ``priority`` *(optional)* *(int)* - 任务优先级
 
 **Status codes**:
 
-* ``200`` - no error
-* ``404`` - task not found
+* ``200`` - 成功
+* ``404`` - 未找到任务
 
 .. _tasks_delete:
 
@@ -623,7 +608,7 @@ is 1).
 
 **GET /tasks/delete/** *(int: id)*
 
-Removes the given task from the database and deletes the results.
+根据任务ID删除任务和任务报表.
 
 **Example request**.
 
@@ -633,13 +618,13 @@ Removes the given task from the database and deletes the results.
 
 **Parameters**:
 
-* ``id`` *(required)* *(int)* - ID of the task to delete
+* ``id`` *(required)* *(int)* - 任务ID
 
 **Status codes**:
 
-* ``200`` - no error
-* ``404`` - task not found
-* ``500`` - unable to delete the task
+* ``200`` - 成功
+* ``404`` - 未找到任务
+* ``500`` - 无法删除任务
 
 .. _tasks_report:
 
@@ -648,7 +633,7 @@ Removes the given task from the database and deletes the results.
 
 **GET /tasks/report/** *(int: id)* **/** *(str: format)*
 
-Returns the report associated with the specified task ID.
+根据任务ID返回报表内容.
 
 **Example request**.
 
@@ -658,14 +643,14 @@ Returns the report associated with the specified task ID.
 
 **Parameters**:
 
-* ``id`` *(required)* *(int)* - ID of the task to get the report for
-* ``format`` *(optional)* - format of the report to retrieve [json/html/all/dropped/package_files]. If none is specified the JSON report will be returned. ``all`` returns all the result files as tar.bz2, ``dropped`` the dropped files as tar.bz2, ``package_files`` files uploaded to host by analysis packages.
+* ``id`` *(required)* *(int)* - 任务ID
+* ``format`` *(optional)* - 报表格式 [json/html/all/dropped/package_files]. 默认为JSON格式. ``all`` 返回 tar.bz2 格式的压缩包，包含所有报告文件, ``dropped`` 返回 tar.bz2 格式压缩包， 包含所有样本产生的文件, ``package_files`` 返回分析模块传到宿主机上的所有文件.
 
 **Status codes**:
 
-* ``200`` - no error
-* ``400`` - invalid report format
-* ``404`` - report not found
+* ``200`` - 成功
+* ``400`` - 报告格式参数错误
+* ``404`` - 未找到相应的报告
 
 .. _tasks_shots:
 
@@ -674,7 +659,7 @@ Returns the report associated with the specified task ID.
 
 **GET /tasks/screenshots/** *(int: id)* **/** *(str: number)*
 
-Returns one or all screenshots associated with the specified task ID.
+根据任务ID返回截图内容.
 
 **Example request**.
 
@@ -684,12 +669,12 @@ Returns one or all screenshots associated with the specified task ID.
 
 **Parameters**:
 
-* ``id`` *(required)* *(int)* - ID of the task to get the report for
-* ``screenshot`` *(optional)* - numerical identifier of a single screenshot (e.g. 0001, 0002)
+* ``id`` *(required)* *(int)* - 任务ID
+* ``screenshot`` *(optional)* - 截图的序号 (e.g. 0001, 0002)
 
 **Status codes**:
 
-* ``404`` - file or folder not found
+* ``404`` - 文件或者文件夹未找到
 
 .. _tasks_rereport:
 
@@ -698,7 +683,7 @@ Returns one or all screenshots associated with the specified task ID.
 
 **GET /tasks/rereport/** *(int: id)*
 
-Re-run reporting for task associated with the specified task ID.
+根据任务ID重新生成报表.
 
 **Example request**.
 
@@ -716,12 +701,12 @@ Re-run reporting for task associated with the specified task ID.
 
 **Parameters**:
 
-* ``id`` *(required)* *(int)* - ID of the task to re-run report
+* ``id`` *(required)* *(int)* - 任务ID
 
 **Status codes**:
 
-* ``200`` - no error
-* ``404`` - task not found
+* ``200`` - 成功
+* ``404`` - 未找到任务
 
 .. _tasks_reboot:
 
@@ -730,7 +715,7 @@ Re-run reporting for task associated with the specified task ID.
 
 **GET /tasks/reboot/** *(int: id)* **
 
-Add a reboot task to database from an existing analysis ID.
+根据已有的任务分析ID添加重新分析任务.
 
 **Example request**.
 
@@ -749,12 +734,12 @@ Add a reboot task to database from an existing analysis ID.
 
 **Parameters**:
 
-* ``id`` *(required)* *(int)* - ID of the task
+* ``id`` *(required)* *(int)* - 任务ID
 
 **Status codes**:
 
-* ``200`` - success
-* ``404`` - error creating reboot task
+* ``200`` - 成功
+* ``404`` - 创建任务失败
 
 .. _memory_list:
 
@@ -763,7 +748,8 @@ Add a reboot task to database from an existing analysis ID.
 
 **GET /memory/list/** *(int: id)*
 
-Returns a list of memory dump files or one memory dump file associated with the specified task ID.
+根据任务ID返回一个或者多个Memory dump的内容
+
 
 **Example request**.
 
@@ -773,11 +759,11 @@ Returns a list of memory dump files or one memory dump file associated with the 
 
 **Parameters**:
 
-* ``id`` *(required)* *(int)* - ID of the task to get the report for
+* ``id`` *(required)* *(int)* - 任务ID
 
 **Status codes**:
 
-* ``404`` - file or folder not found
+* ``404`` - 未找到文件
 
 .. _memory_get:
 
@@ -786,7 +772,7 @@ Returns a list of memory dump files or one memory dump file associated with the 
 
 **GET /memory/get/** *(int: id)* **/** *(str: number)*
 
-Returns one memory dump file associated with the specified task ID.
+根据任务ID和Memory dump的序号，返回内容.
 
 **Example request**.
 
@@ -796,12 +782,12 @@ Returns one memory dump file associated with the specified task ID.
 
 **Parameters**:
 
-* ``id`` *(required)* *(int)* - ID of the task to get the report for
-* ``pid`` *(required)* - numerical identifier (pid) of a single memory dump file (e.g. 205, 1908)
+* ``id`` *(required)* *(int)* - 任务ID
+* ``pid`` *(required)* - memory dump 文件序号 (e.g. 205, 1908)
 
 **Status codes**:
 
-* ``404`` - file or folder not found
+* ``404`` - 文件未找到
 
 .. _files_view:
 
@@ -814,7 +800,7 @@ Returns one memory dump file associated with the specified task ID.
 
 **GET /files/view/id/** *(int: id)*
 
-Returns details on the file matching either the specified MD5 hash, SHA256 hash or ID.
+根据指定的 MD5 hash, SHA256 hash 或者样本ID号返回样本信息.
 
 **Example request**.
 
@@ -842,15 +828,15 @@ Returns details on the file matching either the specified MD5 hash, SHA256 hash 
 
 **Parameters**:
 
-* ``md5`` *(optional)* - MD5 hash of the file to lookup
-* ``sha256`` *(optional)* - SHA256 hash of the file to lookup
-* ``id`` *(optional)* *(int)* - ID of the file to lookup
+* ``md5`` *(optional)* - MD5 值
+* ``sha256`` *(optional)* - SHA256 hash 值
+* ``id`` *(optional)* *(int)* - 样本 ID
 
 **Status codes**:
 
-* ``200`` - no error
-* ``400`` - invalid lookup term
-* ``404`` - file not found
+* ``200`` - 成功
+* ``400`` - 无效的查找项
+* ``404`` - 文件未找到
 
 .. _files_get:
 
@@ -859,7 +845,7 @@ Returns details on the file matching either the specified MD5 hash, SHA256 hash 
 
 **GET /files/get/** *(str: sha256)*
 
- Returns the binary content of the file matching the specified SHA256 hash.
+ 根据 SHA256 hash值返回样本内容.
 
 **Example request**.
 
@@ -869,8 +855,8 @@ Returns details on the file matching either the specified MD5 hash, SHA256 hash 
 
 **Status codes**:
 
-* ``200`` - no error
-* ``404`` - file not found
+* ``200`` - 成功
+* ``404`` - 文件未找到
 
 .. _pcap_get:
 
@@ -879,7 +865,7 @@ Returns details on the file matching either the specified MD5 hash, SHA256 hash 
 
 **GET /pcap/get/** *(int: task)*
 
-Returns the content of the PCAP associated with the given task.
+根据任务ID返回PCAP文件内容.
 
 **Example request**.
 
@@ -889,8 +875,8 @@ Returns the content of the PCAP associated with the given task.
 
 **Status codes**:
 
-* ``200`` - no error
-* ``404`` - file not found
+* ``200`` - 成功
+* ``404`` - 文件未找到
 
 .. _machines_list:
 
@@ -899,7 +885,7 @@ Returns the content of the PCAP associated with the given task.
 
 **GET /machines/list**
 
-Returns a list with details on the analysis machines available to Cuckoo.
+返回可用的虚拟机详情列表.
 
 **Example request**.
 
@@ -937,7 +923,7 @@ Returns a list with details on the analysis machines available to Cuckoo.
 
 **Status codes**:
 
-* ``200`` - no error
+* ``200`` - 成功
 
 .. _machines_view:
 
@@ -946,7 +932,7 @@ Returns a list with details on the analysis machines available to Cuckoo.
 
 **GET /machines/view/** *(str: name)*
 
-Returns details on the analysis machine associated with the given name.
+根据虚拟机名称返回虚拟机详情.
 
 **Example request**.
 
@@ -982,8 +968,8 @@ Returns details on the analysis machine associated with the given name.
 
 **Status codes**:
 
-* ``200`` - no error
-* ``404`` - machine not found
+* ``200`` - 成功
+* ``404`` - 未找到虚拟机
 
 .. _cuckoo_status:
 
@@ -992,19 +978,9 @@ Returns details on the analysis machine associated with the given name.
 
 **GET /cuckoo/status/**
 
-Returns status of the cuckoo server. In version 1.3 the diskspace
-entry was added. The diskspace entry shows the used, free, and total
-diskspace at the disk where the respective directories can be found.
-The diskspace entry allows monitoring of a Cuckoo node through the
-Cuckoo API. Note that each directory is checked separately as one
-may create a symlink for $CUCKOO/storage/analyses to a separate
-harddisk, but keep $CUCKOO/storage/binaries as-is. (This feature is
-only available under Unix!)
-
-In version 1.3 the cpuload entry was also added - the cpuload entry
-shows the CPU load for the past minute, the past 5 minutes, and the
-past 15 minutes, respectively. (This feature is only available under
-Unix!)
+返回cuckoo 当前状态。 
+在 1.3 版本中，增加了磁盘状态 包含磁盘已使用，未使用以及总磁盘（仅在类Unix系统中有效）。
+同时增加了CPU负载情况，包含CPU过去的1分钟，5分钟和15分钟的负载（仅在类Unix系统中有效）。
 
 **Diskspace directories**:
 
@@ -1058,8 +1034,8 @@ Unix!)
 
 **Status codes**:
 
-* ``200`` - no error
-* ``404`` - machine not found
+* ``200`` - 成功
+* ``404`` - 虚拟机未找到
 
 .. _vpn_status:
 
@@ -1068,7 +1044,7 @@ Unix!)
 
 **GET /vpn/status**
 
-Returns VPN status.
+返回VPN状态.
 
 **Example request**.
 
@@ -1078,8 +1054,8 @@ Returns VPN status.
 
 **Status codes**:
 
-* ``200`` - show status
-* ``500`` - not available
+* ``200`` - 查询成功
+* ``500`` - 不可用
 
 .. _exit:
 
@@ -1088,7 +1064,7 @@ Returns VPN status.
 
 **GET /exit**
 
-Shuts down the server if in debug mode and using the werkzeug server.
+如果在调试模式以及使用的werkzeug服务，可以关闭当前的API 服务
 
 **Example request**.
 
@@ -1098,6 +1074,6 @@ Shuts down the server if in debug mode and using the werkzeug server.
 
 **Status codes**:
 
-* ``200`` - success
-* ``403`` - this call can only be used in debug mode
-* ``500`` - error
+* ``200`` - 成功
+* ``403`` - 该接口仅有debug模式有效
+* ``500`` - 报错
