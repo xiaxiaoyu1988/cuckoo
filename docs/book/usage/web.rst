@@ -1,77 +1,60 @@
 =============
-Web interface
+Web 界面
 =============
 
-Cuckoo provides a full-fledged web interface in the form of a Django
-application. This interface will allow you to submit files, browse through the
-reports, and search across all the analysis results.
+Cuckoo 提供一个较为完成的web界面，提供样本提交，报告查看， 分析结果搜索功能。
 
-Configuration
+配置
 =============
 
-The web interface pulls data from a Mongo database, so having the Mongo
-reporting module enabled in ``reporting.conf`` is mandatory for the Web
-Interface to function. If that's not the case, the Web Interface won't be able
-to start and will instead raise an exception.
+Web 界面依赖 Mongodb， 如果没有安装或者 ``reporting.conf`` 没有打开开关，运行就会报错。
 
-Some additional configuration options exist in the
-``$CWD/web/local_settings.py`` configuration file.
+``$CWD/web/local_settings.py`` 文件中包含了web 界面的配置信息.
 
 .. literalinclude:: ../../../cuckoo/data/web/local_settings.py
     :language: python
 
-It is recommended to keep the ``DEBUG`` variable at ``False`` in production
-setups and to configure at least one ``ADMIN`` entry to enable error
-notification by email.
+生产环境下，我们建议 关闭 ``DEBUG`` 开关， 以及至少配置一个 ``ADMIN`` 信息
+用于发送告警的通知邮件。
 
 .. versionchanged:: 2.0.0
    The default maximum upload size has been bumped from 25 MB to 10 GB so that
    virtually any file should be accepted.
 
-Starting the Web Interface
+启动 Web 界面
 ==========================
 
-In order to start the web interface, you can simply run the following command
-from the ``web/`` directory::
+通过如下命令即可启动 Web 界面::
 
     $ cuckoo web runserver
 
-If you want to configure the web interface as listening for any IP on a
-specified port, you can start it with the following command (replace PORT
-with the desired port number)::
+如果需要指定监听的IP和端口，可以参考如下命令::
 
     $ cuckoo web runserver 0.0.0.0:PORT
 
-Or directly without the ``runserver`` part as follows while also specifying
-the host to listen on::
+或者::
 
     $ cuckoo web -H 0
 
 .. _web_deployment:
 
-Web Deployment
+Web 界面部署
 --------------
 
-While the default method of starting the Web Interface server works fine for
-many cases, some users may wish to deploy the server in a more robust manner.
-This can be done by exposing the Web Interface as a WSGI application to a web
-server. This section shows a simple example of deploying the Web Interface via
-`uWSGI`_ and `nginx`_. These instructions are written with Ubuntu GNU/Linux in
-mind, but may be adapted to other platforms.
+默认的 Web 界面部署方式基本上没有什么大问题。
+但是如果需要更好的性能和稳定性，我们推荐  WSGI 方式部署。
+本章简单介绍了， 如何通过 `uWSGI`_ 和 `nginx`_ 来部署。
+以下都是以 Ubuntu环境下为例， 但是其他操作系统下，配置也是类似的
 
-This solution requires ``uWSGI``, the ``uWSGI Python plugin``, and ``nginx``.
-All are available as packages::
+首先需要安装相关依赖包::
 
     $ sudo apt-get install uwsgi uwsgi-plugin-python nginx
 
-uWSGI setup
+uWSGI 设置
 ^^^^^^^^^^^
 
-First, use uWSGI to run the Web Interface server as an application.
-
-To begin, create a uWSGI configuration file at
-``/etc/uwsgi/apps-available/cuckoo-web.ini`` that contains the actual
-configuration as reported by the ``cuckoo web --uwsgi`` command, e.g.::
+首先通过 ``cuckoo web --uwsgi`` 来生成 uWSGI 的配置文件内容， 配置文件存储在
+``/etc/uwsgi/apps-available/cuckoo-web.ini`` ，内容如下::
 
     $ cuckoo web --uwsgi
     [uwsgi]
@@ -88,14 +71,11 @@ configuration as reported by the ``cuckoo web --uwsgi`` command, e.g.::
     env = CUCKOO_APP=web
     env = CUCKOO_CWD=/home/..somepath..
 
-This configuration inherits a number of settings from the distribution's
-default uWSGI configuration and imports ``cuckoo.web.web.wsgi`` from the
-Cuckoo package to do the actual work. In this example we installed Cuckoo in a
-virtualenv located at ``/home/cuckoo/cuckoo``. If Cuckoo is installed globally
-no virtualenv option is required (and ``cuckoo web --uwsgi`` would not report
-one).
+配置文件中大部分内容是继承自 uWSGI的默认配置， 以及导入了 ``cuckoo.web.web.wsgi``。
+由于示例中 Cuckoo 是通过 virtualenv  来安装的，所以配置中含有了相关信息，
+如果不是 virtualenv 安装，则没有类似的配置信息。
 
-Enable the app configuration and start the server.
+连接配置文件，启动 uwsgi 应用.
 
 .. code-block:: bash
 
@@ -104,20 +84,17 @@ Enable the app configuration and start the server.
 
 .. note::
 
-   Logs for the application may be found in the standard directory for distribution
-   app instances, i.e., ``/var/log/uwsgi/app/cuckoo-web.log``.
-   The UNIX socket is created in a conventional location as well,
+   uwsgi 的日志文件路径 ``/var/log/uwsgi/app/cuckoo-web.log``.
+   UNIX socket 文件路径
    ``/run/uwsgi/app/cuckoo-web/socket``.
 
-nginx setup
+nginx 设置
 ^^^^^^^^^^^
 
-With the Web Interface server running in uWSGI, nginx can now be set up to run
-as a web server/reverse proxy, backending HTTP requests to it.
+uWSGI的应用已经跑起来了，接下来把NGINX配置成反向代理模式，转发HTTP请求到uWSGI应用。
 
-To begin, create a nginx configuration file at
-``/etc/nginx/sites-available/cuckoo-web`` that contains the actual
-configuration as reported by the ``cuckoo web --nginx`` command::
+通过 ``cuckoo web --nginx`` 命令生成配置文件内容， 配置文件存储到 ``/etc/nginx/sites-available/cuckoo-web`` 目录
+::
 
     $ cuckoo web --nginx
     upstream _uwsgi_cuckoo_web {
@@ -135,23 +112,21 @@ configuration as reported by the ``cuckoo web --nginx`` command::
         }
     }
 
-Make sure that nginx can connect to the uWSGI socket by placing its user in the
-**cuckoo** group::
+确保 Nginx 有权限连接到uWSGI 应用。
+如果 cuckoo 以 **cuckoo** 用户组运行， 则需要将www-data 用户加入到用户组::
 
     $ sudo adduser www-data cuckoo
 
-Enable the server configuration and start the server.
+链接配置，并启动nginx
 
 .. code-block:: bash
 
     $ sudo ln -s /etc/nginx/sites-available/cuckoo-web /etc/nginx/sites-enabled/
     $ sudo service nginx start    # or reload, if already running
 
-At this point, the Web Interface server should be available at port **8000**
-on the server. Various configurations may be applied to extend this
-configuration, such as to tune server performance, add authentication, or to
-secure communications using HTTPS. However, we leave this as an exercise for
-the user.
+至此 web 界面就跑起来了， 监听端口是 **8000**。
+接下来可以继续调整配置，例如调整nginx的性能参数，或者使用https 服务， 
+这些本文档就不做详细说明了， 各位如果有兴趣，可以自己去研究。
 
 .. _`uWSGI`: http://uwsgi-docs.readthedocs.org/en/latest/
 .. _`nginx`: http://nginx.org/

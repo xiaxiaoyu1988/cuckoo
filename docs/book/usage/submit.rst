@@ -1,5 +1,5 @@
 ==================
-Submit an Analysis
+提交分析
 ==================
 
 * :ref:`submitpy`
@@ -9,11 +9,10 @@ Submit an Analysis
 
 .. _submitpy:
 
-Submission Utility
+提交工具
 ==================
 
-The easiest way to submit an analysis is to use the ``cuckoo submit`` utility.
-It currently has the following options available::
+最简单的提交样本分析的方式是通过 ``cuckoo submit`` 命令， 例如::
 
     $ cuckoo submit --help
     Usage: cuckoo submit [OPTIONS] [TARGET]...
@@ -46,63 +45,59 @@ It currently has the following options available::
       -q, --quiet         Only log warnings and critical messages
       --help              Show this message and exit.
 
-You may specify multiple files or directories at once. For directories
-``cuckoo submit`` will enumerate all its files and submit them one by one.
+通过 ``cuckoo submit`` 可以指定文件或者目录， 如果是目录的话， 会遍历并提交里面的文件。
 
-The concept of analysis packages will be dealt later in this documentation (at
-:doc:`packages`). Following are some usage examples:
+对于提交为样本类型会在后续的代码中自动分析， 可以参考 :doc:`packages` 
 
-*Example*: submit a local binary::
+*Example*: 提交一个本地的二进制文件::
 
     $ cuckoo submit /path/to/binary
 
-*Example*: submit an URL::
+*Example*: 提交一个 URL::
 
     $ cuckoo submit --url http://www.example.com
 
-*Example*: submit a local binary and specify an higher priority::
+*Example*: 提交一个本地的二进制文件并且指定了较高的优先级::
 
     $ cuckoo submit --priority 5 /path/to/binary
 
-*Example*: submit a local binary and specify a custom analysis timeout of
-60 seconds::
+*Example*: 提交一个本地的二进制文件并且设置最长分析时间是60秒::
 
     $ cuckoo submit --timeout 60 /path/to/binary
 
-*Example*: submit a local binary and specify a custom analysis package::
+*Example*: 提交一个本地的二进制文件并且指定文件类型::
 
     $ cuckoo submit --package <name of package> /path/to/binary
 
-*Example*: submit a local binary and specify a custom route::
+*Example*: 提交一个本地的二进制文件并且指定网络路由方式是tor::
 
     $ cuckoo submit -o route=tor /path/to/binary
 
-*Example*: submit a local binary and specify a custom analysis package and
-some options (in this case a command line argument for the malware)::
+*Example*: 提交一个本地的二进制文件并且指定文件类型，以及指定二进制文件运行时携带的参数::
 
     $ cuckoo submit --package exe --options arguments=--dosomething /path/to/binary.exe
 
-*Example*: submit a local binary to be run on virtual machine *cuckoo1*::
+*Example*: 提交一个本地的二进制文件并且指定运行的虚拟机是 *cuckoo1*::
 
     $ cuckoo submit --machine cuckoo1 /path/to/binary
 
-*Example*: submit a local binary to be run on a Windows machine::
+*Example*: 提交一个本地的二进制文件并且指定虚拟机平台是windows::
 
     $ cuckoo submit --platform windows /path/to/binary
 
-*Example*: submit a local binary and take a full memory dump of the analysis machine::
+*Example*: 提交一个本地的二进制文件并且要求完整内存dumps::
 
     $ cuckoo submit --memory /path/to/binary
 
-*Example*: submit a local binary and force the analysis to be executed for the full timeout (disregarding the internal mechanism that Cuckoo uses to decide when to terminate the analysis)::
+*Example*: 提交一个本地的二进制文件并且强制使用最大的单个样本分析时长::
 
     $ cuckoo submit --enforce-timeout /path/to/binary
 
-*Example*: submit a local binary and set virtual machine clock. Format is %m-%d-%Y %H:%M:%S. If not specified, the current time is used. For example if we want run a sample the 24 january 2001 at 14:41:20::
+*Example*: 提交一个本地的二进制文件并且指定设置虚拟机的系统日期时间::
 
     $ cuckoo submit --clock "01-24-2001 14:41:20" /path/to/binary
 
-*Example*: submit a sample for Volatility analysis (to reduce side effects of the cuckoo hooking, switch it off with *options free=True*)::
+*Example*: 提交一个本地的二进制文件并且要求内存分析， 且设置内存分析的参数 ::
 
     $ cuckoo submit --memory --options free=yes /path/to/binary
 
@@ -111,29 +106,28 @@ some options (in this case a command line argument for the malware)::
 API
 ===
 
-Detailed usage of the REST API interface is described in :doc:`api`.
+REST API 的使用方法参考 :doc:`api`.
 
 .. _distpy:
 
-Distributed Cuckoo
+分布式 Cuckoo
 ==================
 
-Detailed usage of the Distributed Cuckoo API interface is described in
+分布式的Cuckoo 可以参考
 :doc:`dist`.
 
 .. _python:
 
-Python Functions
+Python 函数库
 ================
 
-In order to keep track of submissions, samples and overall execution, Cuckoo
-uses a popular Python ORM called `SQLAlchemy`_ that allows you to make the sandbox
-use SQLite, MySQL or MariaDB, PostgreSQL and several other SQL database systems.
+为了数据库的兼容性，我们使用了一个流行的Python ORM 库 `SQLAlchemy`_，
+可以支持多种数据库类型，包括但不限于 SQLite, MySQL or MariaDB, PostgreSQL 。
 
-Cuckoo is designed to be easily integrated in larger solutions and to be fully
-automated. In order to automate analysis submission we suggest to use the REST
-API interface described in :doc:`api`, but in case you want to write your
-own Python submission script, you can also use the ``add_path()`` and ``add_url()`` functions.
+Cuckoo 被设计成可以方便集成到大的系统中。 我们推荐使用 REST API 接口， 参考 :doc:`api` 。
+如果想实现自己的提交脚本，也可以使用  ``add_path()`` 和 ``add_url()`` 函数。
+
+函数接口如下.
 
 .. function:: add_path(file_path[, timeout=0[, package=None[, options=None[, priority=1[, custom=None[, owner=""[, machine=None[, platform=None[, tags=None[, memory=False[, enforce_timeout=False], clock=None[]]]]]]]]]]]]])
 
