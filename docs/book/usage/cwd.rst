@@ -4,48 +4,30 @@ Cuckoo 工作目录使用说明
 
 .. note:: 本章阅读前，可以先看下Cuckoo安装和 :doc:`../installation/host/cwd`.
 
-Before we go into the subject of using the ``CWD`` we're first going to walk
-you through the many improvements on your Quality of Life during your daily
-usage of Cuckoo Sandbox with the introduction of the ``Cuckoo Package`` and
-``CWD`` and some of the new features that come along with this.
+在文章开始之前，我们首先说明下，``CWD`` 的引入到底改进了很多地方，
+这么说吧， 能够直接提升我们的生活质量:)
 
-So simply put, the ``CWD`` is a per-Cuckoo instance configuration directory.
-While people generally speaking only run one Cuckoo instance per server, this
-still yields a lot of maintenance-related improvements:
+改进点:
 
-* As outlined by :doc:`../installation/host/installation` installing Cuckoo
-  and updating it will now be pretty much ``pip install -U cuckoo``.
-* Due to Cuckoo now being an official Python Package we have a much tighter
-  control on how its installed on users' systems. No longer will users have
-  incorrect versions of third party libraries installed breaking their setup.
-* Because updating is much easier (again, ``pip install -U cuckoo``) we will
-  be able to **put out new versions more often**. E.g., when one or more users
-  run into a bug, we'll be able to put out a fix quickly - this has happened a
-  few times in the past in a way that we weren't able to properly mitigate
-  such issues (leaving users high & dry for months).
-* **The Cuckoo Configuration is no longer part of the Git repository**. Users
-  who have updated Cuckoo in the past will have seen the effort involved in
-  making a backup of their configuration, pulling a new version of Cuckoo, and
-  either restoring their old configuration or applying the configuration
-  against the new Cuckoo version by hand.
-* With the new ``CWD`` all configurable files will be in one centralized
-  place in logically structured subdirectories.
-* Given that a ``CWD`` denotes *one* Cuckoo instance, it is possible to have
-  multiple Cuckoo instances through multiple ``CWD``'s while having
-  installed/deployed Cuckoo only once.
-* With the addition of the ``cuckoo`` executable and its associated
-  :ref:`cuckoo_apps` (subcommands) **the various Cuckoo commands are now
-  centralized into one command**.
+* 如 :doc:`../installation/host/installation` 一节中所述
+  Cuckoo 现在的安装和升级只需要 执行一条命令 ``pip install -U cuckoo``.
+* 由于现在Cuckoo已经录入Python官方版本库，所以我们对版本升级控制的更加严格了，
+  升级过程中会尽可能减少对用户已有数据的影响.
+* 也因为升级更加方便，我们的版本发布将会更加频繁。比如，BUG修复的速度将会更快。
+* **Cuckoo的配置文件不在归档到GIt版本库中**. 用户如果是从旧版本的Cuckoo升级过来的.
+  需要手动将配置文件更新到新的配置文件中。
+* 新的Cuckoo将所有的配置文件都集中放到 ``CWD`` 目录.
+* 新版本的Cuckoo支持一次安装运行多个实例指向不同的 ``CWD`` 目录。
+* 新版Cuckoo中，整合了之前的多个脚本，
+  以 ``cuckoo`` 脚本命令行参数的方式来运行 :ref:`cuckoo_apps` 。 
 
 Usage
 =====
 
-After having installed the ``Cuckoo Package`` (:ref:`installing`) and setup
-the initial ``Cuckoo Working Directory`` (:doc:`../installation/host/cwd`) it
-is time to actually get started with Cuckoo. Just to reiterate, installing the
-latest version of Cuckoo in a ``virtualenv`` environment may look roughly as
-follows (note the ``pip install -U pip setuptools``, for more information see
-also :ref:`pip_install_issue`).
+Cuckoo 安装(:ref:`installing`)和配置(:doc:`../installation/host/cwd`)完成后，
+就可以开始使用了。
+如果安装过程种有问题，可以参考 :ref:`pip_install_issue`
+如果使用的是virtualenv安装，可以参考如下命令
 
 .. code-block:: bash
 
@@ -55,31 +37,24 @@ also :ref:`pip_install_issue`).
     (venv)$ pip install -U cuckoo
     (venv)$ cuckoo --cwd ~/.cuckoo
 
-First of all you'll probably want to update the default Cuckoo configuration
-in the ``$CWD/conf/`` directory. If just to switch from the default SQLite3
-database to, e.g., PostgreSQL, or to register some virtual machines (more
-information on setting up Virtual Machines can be found in
-:doc:`../installation/guest/index`). Note that in order to view the results of
-analyses in the Web Interface later on it is necessary to enable the
-``mongodb`` reporting module in ``$CWD/conf/reporting.conf`` (see also
-:doc:`web`).
+开始使用之前，如果需要修改Cuckoo的默认配置， 配置目录在 ``$CWD/conf/`` 。
+如果添加虚拟机或者修改数据库， 可以参考 :doc:`../installation/guest/index`。
+如果需要WEB界面上看到样本分析报告， ``$CWD/conf/reporting.conf`` 中的 ``mongodb`` 一定要启用。
+参考 :doc:`web`
 
-We then proceed by downloading the Cuckoo Community which includes over 300
-Cuckoo Signatures which summarize a wide array of malicious behavior in a
-digestible way, simplifying the final results of an analysis. Downloading the
-Cuckoo Community into our ``CWD`` may be done as follows::
+接下来我们需要下载 Cuckoo Community，
+其中包含了300多个恶意软件行为签名，可用于简化我们对结果的分析。
+下载命令如下::
 
     (venv)$ cuckoo community
 
-Alternatively, if you have a local copy of the community ``.tar.gz`` file
-(e.g., after running
-``wget https://github.com/cuckoosandbox/community/archive/master.tar.gz``)
-this can be imported as follows::
+或者如果有下载好的 community 压缩包， (例如 ``wget https://github.com/cuckoosandbox/community/archive/master.tar.gz``)
+可以通过如下命令直接导入::
 
     (venv)$ cuckoo community --file master.tar.gz
 
-Now we're good to go let's submit some samples and URLs using the command-line
-:ref:`submitpy`. Note that multiple tasks may be submitted at once::
+至此，我们就可以开始提交样本了， 可以参考 :ref:`submitpy` 。
+多个样本可以在一次命令中提交，例如::
 
     (venv)$ cuckoo submit /tmp/sample1.exe /tmp/sample2.exe /tmp/sample3.exe
     Success: File "/tmp/sample1.exe" added as task with ID #1
@@ -89,20 +64,18 @@ Now we're good to go let's submit some samples and URLs using the command-line
     Success: URL "google.com" added as task with ID #4
     Success: URL "bing.com" added as task with ID #5
 
-For the actual analysis of these samples, one will have to run the Cuckoo
-daemon. Which is equally straightforward. Do keep in mind that, by default,
-the command will run indefinitely (unless a ``maximum analysis count`` was
-provided through the ``-m`` parameter, e.g., ``-m 5``).
+样本的分析，依赖 cuckoo 的守护进程。 默认情况下， 直接运行守护进程，
+不限制同时分析的样本数量（可通过 ``-m`` 参数指定)
 
 .. code-block:: bash
 
     # This command is equal to what used to be "./cuckoo.py -d".
     (venv)$ cuckoo -d
 
-Now in order to inspect the analyses that have run we start the Web Interface.
-For small and/or home setups this may be done using the built-in Django web
-server as follows, although we recommend a proper :ref:`web_deployment` for
-any bigger setup.
+如果需要从WEB界面查看界面分析结果， 则需要运行cuckoo WEB进程。
+对于测试环境或者并发数较小的环境， 可以通过内置的 Django WEB server 来运行，
+实际环境下，我们更推荐基于高性能的WEB服务器来部署， 可以参考 :ref:`web_deployment`
+
 
 .. code-block:: bash
 
@@ -115,7 +88,7 @@ any bigger setup.
     Starting development server at http://localhost:8000/
     Quit the server with CONTROL-C.
 
-There are some additional ``Cuckoo Apps`` such as ``cuckoo clean``
-(:ref:`cuckoo-clean`), the :ref:`rooter`, and various other utilities listed
-in :ref:`cuckoo_apps`, but other than that there's not much more to learn
-about installing and running Cuckoo Sandbox - so, happy analyzing.
+另外，cuckoo 还包含了一些其他的领命， 例如 
+``cuckoo clean`` (:ref:`cuckoo-clean`),  :ref:`rooter`
+以及 :ref:`cuckoo_apps` 列出的一些实用工具， 除此之外就没别的了。
+so, happy analyzing.
