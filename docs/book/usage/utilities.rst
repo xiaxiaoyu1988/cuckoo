@@ -1,20 +1,17 @@
 =========
-Utilities
+工具
 =========
 
-Cuckoo comes with a set of pre-built utilities to automate several common
-tasks. Before these utilities could be found in the ``utils/`` directory but
-since then we have moved to ``Cuckoo Apps``.
+Cuckoo 包含了一套用于自动化的工具。之前是放在 ``utils/`` 目录的，
+现在全部被整合到一起了。
 
 .. _cuckoo_apps:
 
 Cuckoo Apps
 ===========
 
-A ``Cuckoo App`` is essentially just a Cuckoo sub-command. There exist a
-couple of Cuckoo Apps, each with their own functionality. It is important to
-note that each Cuckoo App can be invoked in the same way. Following are some
-examples::
+一个 Cuckoo App 现在是 cuckoo 命令的一个子命令。 
+每个 app 都具有各自的功能， 调用方式都是类似的，例如::
 
     $ cuckoo submit --help
     $ cuckoo api --help
